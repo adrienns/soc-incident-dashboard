@@ -1,10 +1,13 @@
-import { createSlice, createAsyncThunk, createEntityAdapter, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, createEntityAdapter, PayloadAction, createSelector } from '@reduxjs/toolkit';
 import { client } from '../../api/client';
 import { RootState } from '../../store';
 
-export type Severity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
-export type Status = 'OPEN' | 'RESOLVED' | 'ESCALATED';
-export type ConnectionStatus = 'connected' | 'disconnected' | 'connecting';
+import {
+    type Severity,
+    type Status,
+    type ConnectionStatus,
+    SEVERITY_ORDER
+} from '../../constants/incidents';
 
 export interface Incident {
     id: string;
@@ -14,6 +17,24 @@ export interface Incident {
     timestamp: string;
     status: Status;
 }
+
+export interface FilterState {
+    severities: Severity[];
+    status: Status | null;
+    category: string | null;
+    search: string;
+    sortBy: 'timestamp' | 'severity';
+    sortOrder: 'asc' | 'desc';
+}
+
+const initialFilters: FilterState = {
+    severities: [],
+    status: null,
+    category: null,
+    search: '',
+    sortBy: 'timestamp',
+    sortOrder: 'desc',
+};
 
 // Normalization: { ids: [], entities: {} }
 const incidentsAdapter = createEntityAdapter<Incident>({
@@ -25,6 +46,7 @@ interface IncidentsState {
     error: string | null;
     connectionStatus: ConnectionStatus;
     lastCriticalIncident: Incident | null;
+    filters: FilterState;
 }
 
 const initialState = incidentsAdapter.getInitialState<IncidentsState>({
@@ -32,6 +54,7 @@ const initialState = incidentsAdapter.getInitialState<IncidentsState>({
     error: null,
     connectionStatus: 'disconnected',
     lastCriticalIncident: null,
+    filters: initialFilters,
 });
 
 export const fetchIncidents = createAsyncThunk('incidents/fetchIncidents', async () => {
@@ -59,6 +82,12 @@ const incidentsSlice = createSlice({
         clearCriticalAlert: (state) => {
             state.lastCriticalIncident = null;
         },
+        setFilters: (state, action: PayloadAction<Partial<FilterState>>) => {
+            state.filters = { ...state.filters, ...action.payload };
+        },
+        clearFilters: (state) => {
+            state.filters = initialFilters;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -77,10 +106,10 @@ const incidentsSlice = createSlice({
     },
 });
 
-export const { incidentReceived, setConnectionStatus, clearCriticalAlert } = incidentsSlice.actions;
+export const { incidentReceived, setConnectionStatus, clearCriticalAlert, setFilters, clearFilters } = incidentsSlice.actions;
 export default incidentsSlice.reducer;
 
-// Selectors
+// Base selectors
 export const {
     selectAll: selectAllIncidents,
     selectById: selectIncidentById,
@@ -91,4 +120,62 @@ export const selectIncidentsStatus = (state: RootState) => state.incidents.statu
 export const selectIncidentsError = (state: RootState) => state.incidents.error;
 export const selectConnectionStatus = (state: RootState) => state.incidents.connectionStatus;
 export const selectLastCriticalIncident = (state: RootState) => state.incidents.lastCriticalIncident;
+export const selectFilters = (state: RootState) => state.incidents.filters;
 
+// Severity order for sorting is imported from constants
+
+// Memoized selector for filtered incidents
+export const selectFilteredIncidents = createSelector(
+    [selectAllIncidents, selectFilters],
+    (incidents, filters) => {
+        let result = [...incidents];
+
+        // Filter by severities (multi-select)
+        if (filters.severities.length > 0) {
+            result = result.filter((inc) => filters.severities.includes(inc.severity));
+        }
+
+        // Filter by status
+        if (filters.status) {
+            result = result.filter((inc) => inc.status === filters.status);
+        }
+
+        // Filter by category
+        if (filters.category) {
+            result = result.filter((inc) => inc.category === filters.category);
+        }
+
+        // Filter by search (source IP)
+        if (filters.search) {
+            const searchLower = filters.search.toLowerCase();
+            result = result.filter((inc) => inc.source.toLowerCase().includes(searchLower));
+        }
+
+        // Sort
+        result.sort((a, b) => {
+            if (filters.sortBy === 'severity') {
+                const diff = SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity];
+                return filters.sortOrder === 'asc' ? diff : -diff;
+            } else {
+                const diff = new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+                return filters.sortOrder === 'asc' ? diff : -diff;
+            }
+        });
+
+        return result;
+    }
+);
+
+// Summary counts selector
+export const selectSummaryCounts = createSelector(
+    [selectAllIncidents],
+    (incidents) => {
+        const counts = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0, OPEN: 0, total: 0 };
+        incidents.forEach((inc) => {
+            counts[inc.severity]++;
+            if (inc.status === 'OPEN') counts.OPEN++;
+            counts.total++;
+        });
+        return counts;
+    }
+);

@@ -17,26 +17,33 @@ import {
 import { useAppDispatch, useAppSelector } from "../hooks";
 import {
     fetchIncidents,
-    selectAllIncidents,
+    selectFilteredIncidents,
     selectIncidentsStatus,
     selectIncidentsError,
     selectConnectionStatus,
     selectLastCriticalIncident,
+    selectSummaryCounts,
     clearCriticalAlert,
 } from "../features/incidents/incidentsSlice";
 import { logout } from "../features/auth/authSlice";
 import { websocketManager } from "../services/websocket";
+import { useURLSync } from "../hooks/useURLSync";
+import { FilterBar } from "../features/incidents/FilterBar";
 
 export default function DashboardPage() {
     const dispatch = useAppDispatch();
-    const incidents = useAppSelector(selectAllIncidents);
+    const filteredIncidents = useAppSelector(selectFilteredIncidents);
     const status = useAppSelector(selectIncidentsStatus);
     const error = useAppSelector(selectIncidentsError);
     const connectionStatus = useAppSelector(selectConnectionStatus);
     const lastCriticalIncident = useAppSelector(selectLastCriticalIncident);
+    const summaryCounts = useAppSelector(selectSummaryCounts);
     const token = useAppSelector((state) => state.auth.token);
 
     const { isOpen, onOpen, onClose } = useDisclosure();
+
+    // Initialize URL sync (watches URL and dispatches to Redux)
+    useURLSync();
 
     useEffect(() => {
         if (status === "idle") {
@@ -116,6 +123,7 @@ export default function DashboardPage() {
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
+                {/* Header */}
                 <div className="flex justify-between items-center">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -137,42 +145,87 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                     <Card>
                         <CardBody>
-                            <p className="text-sm text-default-500">Active Incidents</p>
-                            <p className="text-2xl font-semibold">{incidents.length}</p>
+                            <p className="text-sm text-default-500">Open</p>
+                            <p className="text-2xl font-semibold">{summaryCounts.OPEN}</p>
                         </CardBody>
                     </Card>
-                    {/* Add more summary cards here later */}
+                    <Card className="border-l-4 border-danger">
+                        <CardBody>
+                            <p className="text-sm text-danger">Critical</p>
+                            <p className="text-2xl font-semibold text-danger">{summaryCounts.CRITICAL}</p>
+                        </CardBody>
+                    </Card>
+                    <Card className="border-l-4 border-warning">
+                        <CardBody>
+                            <p className="text-sm text-warning">High</p>
+                            <p className="text-2xl font-semibold text-warning">{summaryCounts.HIGH}</p>
+                        </CardBody>
+                    </Card>
+                    <Card className="border-l-4 border-primary">
+                        <CardBody>
+                            <p className="text-sm text-primary">Medium</p>
+                            <p className="text-2xl font-semibold text-primary">{summaryCounts.MEDIUM}</p>
+                        </CardBody>
+                    </Card>
+                    <Card className="border-l-4 border-default">
+                        <CardBody>
+                            <p className="text-sm text-default-500">Low</p>
+                            <p className="text-2xl font-semibold">{summaryCounts.LOW}</p>
+                        </CardBody>
+                    </Card>
                 </div>
 
+                {/* Filter Bar */}
+                <Card>
+                    <CardBody>
+                        <FilterBar />
+                    </CardBody>
+                </Card>
+
+                {/* Incidents List */}
                 <Card>
                     <CardHeader>
-                        <h2 className="text-lg font-semibold">Recent Incidents</h2>
+                        <h2 className="text-lg font-semibold">Incidents</h2>
                     </CardHeader>
                     <Divider />
                     <CardBody>
                         <div className="space-y-4">
-                            {incidents.slice(0, 5).map((incident) => (
-                                <div key={incident.id} className="p-4 border rounded-lg dark:border-gray-700 bg-content2">
-                                    <div className="flex justify-between">
-                                        <span className="font-medium">{incident.category}</span>
-                                        <span className={`text-xs px-2 py-1 rounded-full ${incident.severity === 'CRITICAL' ? 'bg-danger/20 text-danger' :
-                                            incident.severity === 'HIGH' ? 'bg-warning/20 text-warning' :
-                                                'bg-default/20 text-default-500'
-                                            }`}>
-                                            {incident.severity}
-                                        </span>
+                            {filteredIncidents.map((incident) => (
+                                <div key={incident.id} className={`p-4 border rounded-lg dark:border-gray-700 bg-content2 ${incident.severity === 'CRITICAL' ? 'border-l-4 border-l-danger' :
+                                    incident.severity === 'HIGH' ? 'border-l-4 border-l-warning' : ''
+                                    }`}>
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <span className="font-medium">{incident.category}</span>
+                                            <p className="text-sm text-default-500 mt-1">{incident.source}</p>
+                                            <p className="text-xs text-default-400 mt-2">
+                                                {new Date(incident.timestamp).toLocaleString()}
+                                            </p>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Chip size="sm" color={
+                                                incident.severity === 'CRITICAL' ? 'danger' :
+                                                    incident.severity === 'HIGH' ? 'warning' :
+                                                        incident.severity === 'MEDIUM' ? 'primary' : 'default'
+                                            }>
+                                                {incident.severity}
+                                            </Chip>
+                                            <Chip size="sm" variant="flat" color={
+                                                incident.status === 'OPEN' ? 'warning' :
+                                                    incident.status === 'RESOLVED' ? 'success' : 'secondary'
+                                            }>
+                                                {incident.status}
+                                            </Chip>
+                                        </div>
                                     </div>
-                                    <p className="text-sm text-default-500 mt-1">{incident.source}</p>
-                                    <p className="text-xs text-default-400 mt-2">
-                                        {new Date(incident.timestamp).toLocaleString()}
-                                    </p>
                                 </div>
                             ))}
-                            {incidents.length === 0 && (
-                                <p className="text-center text-default-500">No incidents found.</p>
+                            {filteredIncidents.length === 0 && (
+                                <p className="text-center text-default-500 py-8">No incidents match the current filters.</p>
                             )}
                         </div>
                     </CardBody>
@@ -204,4 +257,3 @@ export default function DashboardPage() {
         </div>
     );
 }
-
