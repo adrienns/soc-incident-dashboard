@@ -6,4 +6,13 @@ import tailwindcss from "@tailwindcss/vite";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), tsconfigPaths(), tailwindcss()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://incident-platform.azurewebsites.net',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 });
