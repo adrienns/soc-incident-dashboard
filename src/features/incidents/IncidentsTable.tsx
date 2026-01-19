@@ -9,7 +9,7 @@ import {
     Button
 } from "@heroui/react";
 import { useAppSelector, useAppDispatch } from "../../hooks";
-import { selectFilteredIncidents, updateIncidentStatus } from "./incidentsSlice";
+import { selectFilteredIncidents, patchIncidentStatus } from "./incidentsSlice";
 
 export const IncidentsTable = () => {
     const incidents = useAppSelector(selectFilteredIncidents);
@@ -78,7 +78,7 @@ export const IncidentsTable = () => {
                             size="sm"
                             variant="flat"
                             isDisabled={incident.status === 'RESOLVED'}
-                            onPress={() => dispatch(updateIncidentStatus({ id: incident.id, status: 'RESOLVED' }))}
+                            onPress={() => dispatch(patchIncidentStatus({ id: incident.id, status: 'RESOLVED' }))}
                             className={`font-medium ${incident.status === 'RESOLVED' ? 'opacity-50' : ''}`}
                         >
                             Resolve
@@ -88,7 +88,7 @@ export const IncidentsTable = () => {
                             size="sm"
                             variant="flat"
                             isDisabled={incident.status === 'ESCALATED' || incident.status === 'RESOLVED'}
-                            onPress={() => dispatch(updateIncidentStatus({ id: incident.id, status: 'ESCALATED' }))}
+                            onPress={() => dispatch(patchIncidentStatus({ id: incident.id, status: 'ESCALATED' }))}
                             className={`font-medium ${incident.status === 'ESCALATED' || incident.status === 'RESOLVED' ? 'opacity-50' : ''}`}
                         >
                             Escalate

@@ -74,6 +74,34 @@ export const fetchIncidents = createAsyncThunk(
     }
 );
 
+// Optimistic update thunk for patching incident status
+export const patchIncidentStatus = createAsyncThunk(
+    'incidents/patchStatus',
+    async (
+        { id, status }: { id: string; status: Status },
+        { dispatch, getState, rejectWithValue }
+    ) => {
+        // Get old status for rollback
+        const state = getState() as { incidents: ReturnType<typeof incidentsAdapter.getInitialState> & { entities: Record<string, Incident> } };
+        const oldIncident = state.incidents.entities[id];
+        const oldStatus = oldIncident?.status;
+
+        // Optimistic update
+        dispatch(updateIncidentStatusLocal({ id, status }));
+
+        try {
+            const response = await client.patch(`/api/incidents/${id}`, { status });
+            return response.data;
+        } catch (err: any) {
+            // Rollback on failure
+            if (oldStatus) {
+                dispatch(updateIncidentStatusLocal({ id, status: oldStatus }));
+            }
+            return rejectWithValue(err.response?.data?.message || 'Failed to update incident');
+        }
+    }
+);
+
 const incidentsSlice = createSlice({
     name: 'incidents',
     initialState,
@@ -99,7 +127,8 @@ const incidentsSlice = createSlice({
         clearFilters: (state) => {
             state.filters = initialFilters;
         },
-        updateIncidentStatus: (state, action: PayloadAction<{ id: string; status: Status }>) => {
+        // Internal action for optimistic updates (used by patchIncidentStatus thunk)
+        updateIncidentStatusLocal: (state, action: PayloadAction<{ id: string; status: Status }>) => {
             const { id, status } = action.payload;
             incidentsAdapter.updateOne(state, { id, changes: { status } });
 
@@ -126,7 +155,7 @@ const incidentsSlice = createSlice({
     },
 });
 
-export const { incidentReceived, setConnectionStatus, clearCriticalAlert, setFilters, clearFilters, updateIncidentStatus } = incidentsSlice.actions;
+export const { incidentReceived, setConnectionStatus, clearCriticalAlert, setFilters, clearFilters, updateIncidentStatusLocal } = incidentsSlice.actions;
 export default incidentsSlice.reducer;
 
 // Base selectors
