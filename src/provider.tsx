@@ -14,7 +14,9 @@ export function Provider({ children }: { children: React.ReactNode }) {
 
   return (
     <HeroUIProvider navigate={navigate} useHref={useHref}>
-      {children}
+      <div className="dark text-foreground bg-background min-h-screen">
+        {children}
+      </div>
     </HeroUIProvider>
   );
 }
