@@ -1,5 +1,6 @@
 import { Route, Routes, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
 import { useAppSelector } from "./hooks";
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -18,7 +19,7 @@ function App() {
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <div>Dashboard Placeholder</div>
+            <DashboardPage />
           </ProtectedRoute>
         }
       />
