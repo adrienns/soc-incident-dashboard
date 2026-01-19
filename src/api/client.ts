@@ -14,7 +14,10 @@ export const client = axios.create({
 
 client.interceptors.request.use(
     (config) => {
-        // TODO: Get token from store/localStorage and attach to headers
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
         return config;
     },
     (error) => {
