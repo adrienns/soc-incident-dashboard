@@ -30,17 +30,22 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 px-4">
-            <Card className="w-full max-w-md">
+        <div className="flex items-center justify-center min-h-screen bg-background px-4">
+            <Card className="w-full max-w-md bg-content1 border-default-200 border-1 shadow-lg">
                 <CardHeader className="flex gap-3 justify-center py-6">
-                    <div className="flex flex-col items-center">
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="p-3 bg-danger/10 rounded-full mb-2">
+                            <svg className="w-8 h-8 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <h1 className="text-2xl font-bold text-foreground">
                             SOC Dashboard
                         </h1>
                         <p className="text-small text-default-500">Incident Management System</p>
                     </div>
                 </CardHeader>
-                <Divider />
+                <Divider className="my-2" />
                 <CardBody className="px-8 py-8">
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                         <Input
@@ -50,6 +55,9 @@ export default function LoginPage() {
                             value={username}
                             onValueChange={setUsername}
                             variant="bordered"
+                            classNames={{
+                                inputWrapper: "border-1"
+                            }}
                         />
                         <Input
                             isRequired
@@ -59,18 +67,21 @@ export default function LoginPage() {
                             value={password}
                             onValueChange={setPassword}
                             variant="bordered"
+                            classNames={{
+                                inputWrapper: "border-1"
+                            }}
                         />
 
                         {error && (
-                            <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                            <div className="p-3 text-sm text-danger bg-danger/10 rounded-lg border border-danger/20">
                                 {error}
                             </div>
                         )}
 
                         <Button
-                            color="primary"
+                            color="danger"
                             type="submit"
-                            className="w-full"
+                            className="w-full font-semibold shadow-md"
                             isLoading={status === 'loading'}
                         >
                             Sign In
