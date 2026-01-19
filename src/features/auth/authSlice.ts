@@ -63,17 +63,27 @@ const authSlice = createSlice({
                 state.status = 'loading';
                 state.error = null;
             })
-            .addCase(login.fulfilled, (state, action: PayloadAction<{ access_token: string }>) => {
+            .addCase(login.fulfilled, (state, action: PayloadAction<any>) => {
                 state.status = 'succeeded';
-                // The API likely returns { access_token: "..." } or { token: "..." }
-                // Based on common patterns I'll assume access_token or check the response later. 
-                // For now let's type it loosely or assume 'access_token' based on standard JWT flows.
-                // Actually, let's just save the token.
-                // The prompt says "Returns an access token."
-                const token = action.payload.access_token || (action.payload as any).token;
-                state.token = token;
-                state.isAuthenticated = true;
-                localStorage.setItem('token', token);
+                console.log('Login successful, payload:', action.payload);
+
+                // Try to find the token in various common properties
+                const token = action.payload.access_token ||
+                    action.payload.token ||
+                    action.payload.jwt ||
+                    action.payload.data?.token ||
+                    action.payload.accessToken;
+
+                if (token) {
+                    state.token = token;
+                    state.isAuthenticated = true;
+                    localStorage.setItem('token', token);
+                } else {
+                    console.error('Token not found in login response:', action.payload);
+                    state.status = 'failed';
+                    state.error = 'Invalid response from server (missing token)';
+                    state.isAuthenticated = false;
+                }
             })
             .addCase(login.rejected, (state, action) => {
                 state.status = 'failed';
