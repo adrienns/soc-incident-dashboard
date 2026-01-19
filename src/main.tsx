@@ -6,7 +6,10 @@ import App from "./App.tsx";
 import { Provider } from "./provider.tsx";
 import { Provider as ReduxProvider } from "react-redux";
 import { store } from "./store";
+import { setupInterceptors } from "./api/client";
 import "@/styles/globals.css";
+
+setupInterceptors(store);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

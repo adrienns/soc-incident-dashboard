@@ -25,10 +25,71 @@ client.interceptors.request.use(
     }
 );
 
-client.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        // TODO: Handle 401s for token refresh
-        return Promise.reject(error);
-    }
-);
+let isRefreshing = false;
+let failedQueue: any[] = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+    failedQueue.forEach((prom) => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+
+    failedQueue = [];
+};
+
+export const setupInterceptors = (store: any) => {
+    client.interceptors.response.use(
+        (response) => response,
+        async (error) => {
+            const originalRequest = error.config;
+
+            // Skip if it's the refresh request itself to avoid infinite loops/deadlocks
+            if (originalRequest.url?.includes('/auth/refresh')) {
+                return Promise.reject(error);
+            }
+
+            if (error.response?.status === 401 && !originalRequest._retry) {
+                if (isRefreshing) {
+                    return new Promise(function (resolve, reject) {
+                        failedQueue.push({ resolve, reject });
+                    })
+                        .then((token) => {
+                            originalRequest.headers['Authorization'] = 'Bearer ' + token;
+                            return client(originalRequest);
+                        })
+                        .catch((err) => {
+                            return Promise.reject(err);
+                        });
+                }
+
+                originalRequest._retry = true;
+                isRefreshing = true;
+
+                try {
+                    // Try to refresh the token
+                    // Assuming the backend uses cookies for the refresh token
+                    const response = await client.post('/api/auth/refresh');
+                    const { access_token } = response.data;
+
+                    store.dispatch({ type: 'auth/tokenReceived', payload: access_token });
+
+                    processQueue(null, access_token);
+                    isRefreshing = false;
+
+                    originalRequest.headers['Authorization'] = 'Bearer ' + access_token;
+                    return client(originalRequest);
+                } catch (err) {
+                    processQueue(err, null);
+                    isRefreshing = false;
+                    store.dispatch({ type: 'auth/logout' });
+                    return Promise.reject(err);
+                }
+            }
+
+            return Promise.reject(error);
+        }
+    );
+};
