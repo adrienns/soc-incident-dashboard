@@ -4,6 +4,7 @@ import { RootState } from '../../store';
 
 export type Severity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 export type Status = 'OPEN' | 'RESOLVED' | 'ESCALATED';
+export type ConnectionStatus = 'connected' | 'disconnected' | 'connecting';
 
 export interface Incident {
     id: string;
@@ -22,22 +23,43 @@ const incidentsAdapter = createEntityAdapter<Incident>({
 interface IncidentsState {
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
     error: string | null;
+    connectionStatus: ConnectionStatus;
+    lastCriticalIncident: Incident | null;
 }
 
 const initialState = incidentsAdapter.getInitialState<IncidentsState>({
     status: 'idle',
     error: null,
+    connectionStatus: 'disconnected',
+    lastCriticalIncident: null,
 });
 
 export const fetchIncidents = createAsyncThunk('incidents/fetchIncidents', async () => {
     const response = await client.get('/api/incidents');
-    return response.data;
+    // API returns { incidents: [...], total: N }
+    return response.data.incidents;
 });
 
 const incidentsSlice = createSlice({
     name: 'incidents',
     initialState,
-    reducers: {},
+    reducers: {
+        incidentReceived: (state, action: PayloadAction<Incident>) => {
+            const incident = action.payload;
+            incidentsAdapter.upsertOne(state, incident);
+
+            // Track critical incidents for alerts
+            if (incident.severity === 'CRITICAL' && incident.status === 'OPEN') {
+                state.lastCriticalIncident = incident;
+            }
+        },
+        setConnectionStatus: (state, action: PayloadAction<ConnectionStatus>) => {
+            state.connectionStatus = action.payload;
+        },
+        clearCriticalAlert: (state) => {
+            state.lastCriticalIncident = null;
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchIncidents.pending, (state) => {
@@ -55,6 +77,7 @@ const incidentsSlice = createSlice({
     },
 });
 
+export const { incidentReceived, setConnectionStatus, clearCriticalAlert } = incidentsSlice.actions;
 export default incidentsSlice.reducer;
 
 // Selectors
@@ -66,3 +89,6 @@ export const {
 
 export const selectIncidentsStatus = (state: RootState) => state.incidents.status;
 export const selectIncidentsError = (state: RootState) => state.incidents.error;
+export const selectConnectionStatus = (state: RootState) => state.incidents.connectionStatus;
+export const selectLastCriticalIncident = (state: RootState) => state.incidents.lastCriticalIncident;
+

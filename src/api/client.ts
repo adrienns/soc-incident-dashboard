@@ -70,16 +70,19 @@ export const setupInterceptors = (store: any) => {
 
                 try {
                     // Try to refresh the token
-                    // Assuming the backend uses cookies for the refresh token
-                    const response = await client.post('/api/auth/refresh');
-                    const { access_token } = response.data;
+                    // API requires the old access token in the body
+                    const currentToken = localStorage.getItem('token');
+                    const response = await client.post('/api/auth/refresh', {
+                        accessToken: currentToken
+                    });
+                    const { accessToken } = response.data;
 
-                    store.dispatch({ type: 'auth/tokenReceived', payload: access_token });
+                    store.dispatch({ type: 'auth/tokenReceived', payload: accessToken });
 
-                    processQueue(null, access_token);
+                    processQueue(null, accessToken);
                     isRefreshing = false;
 
-                    originalRequest.headers['Authorization'] = 'Bearer ' + access_token;
+                    originalRequest.headers['Authorization'] = 'Bearer ' + accessToken;
                     return client(originalRequest);
                 } catch (err) {
                     processQueue(err, null);
