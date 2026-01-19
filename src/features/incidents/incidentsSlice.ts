@@ -88,6 +88,15 @@ const incidentsSlice = createSlice({
         clearFilters: (state) => {
             state.filters = initialFilters;
         },
+        updateIncidentStatus: (state, action: PayloadAction<{ id: string; status: Status }>) => {
+            const { id, status } = action.payload;
+            incidentsAdapter.updateOne(state, { id, changes: { status } });
+
+            // If checking a resolved/escalated incident, we might need to clear critical alert
+            if (state.lastCriticalIncident && state.lastCriticalIncident.id === id && status !== 'OPEN') {
+                state.lastCriticalIncident = null;
+            }
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -106,7 +115,7 @@ const incidentsSlice = createSlice({
     },
 });
 
-export const { incidentReceived, setConnectionStatus, clearCriticalAlert, setFilters, clearFilters } = incidentsSlice.actions;
+export const { incidentReceived, setConnectionStatus, clearCriticalAlert, setFilters, clearFilters, updateIncidentStatus } = incidentsSlice.actions;
 export default incidentsSlice.reducer;
 
 // Base selectors
