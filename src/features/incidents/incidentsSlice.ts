@@ -57,11 +57,22 @@ const initialState = incidentsAdapter.getInitialState<IncidentsState>({
     filters: initialFilters,
 });
 
-export const fetchIncidents = createAsyncThunk('incidents/fetchIncidents', async () => {
-    const response = await client.get('/api/incidents');
-    // API returns { incidents: [...], total: N }
-    return response.data.incidents;
-});
+export const fetchIncidents = createAsyncThunk(
+    'incidents/fetchIncidents',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await client.get('/api/incidents');
+            // API returns { incidents: [...], total: N }
+            return response.data.incidents;
+        } catch (err: any) {
+            if (!err.response) {
+                // Network error
+                return rejectWithValue('Network error. Please check your connection.');
+            }
+            return rejectWithValue(err.response?.data?.message || 'Failed to fetch incidents');
+        }
+    }
+);
 
 const incidentsSlice = createSlice({
     name: 'incidents',
@@ -110,7 +121,7 @@ const incidentsSlice = createSlice({
             })
             .addCase(fetchIncidents.rejected, (state, action) => {
                 state.status = 'failed';
-                state.error = action.error.message || 'Failed to fetch incidents';
+                state.error = (action.payload as string) || action.error.message || 'Failed to fetch incidents';
             });
     },
 });

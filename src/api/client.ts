@@ -10,6 +10,7 @@ export const client = axios.create({
     },
     // backend stores refresh tokens in cookies
     withCredentials: true,
+    timeout: 30000, // 30 second timeout
 });
 
 client.interceptors.request.use(

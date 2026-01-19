@@ -7,6 +7,7 @@ import { Provider } from "./provider.tsx";
 import { Provider as ReduxProvider } from "react-redux";
 import { store } from "./store";
 import { setupInterceptors } from "./api/client";
+import ErrorBoundary from "./components/ErrorBoundary";
 import "@/styles/globals.css";
 
 setupInterceptors(store);
@@ -16,9 +17,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <ReduxProvider store={store}>
       <BrowserRouter>
         <Provider>
-          <App />
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
         </Provider>
       </BrowserRouter>
     </ReduxProvider>
   </React.StrictMode>,
 );
+
