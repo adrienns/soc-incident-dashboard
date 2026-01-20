@@ -104,6 +104,7 @@ export const IncidentsTable = () => {
     return (
         <Table aria-label="Incidents Table" selectionMode="single" classNames={{
             wrapper: "bg-content1",
+            tr: "cursor-pointer hover:bg-default-100 transition-colors",
         }}>
             <TableHeader columns={columns}>
                 {(column) => (

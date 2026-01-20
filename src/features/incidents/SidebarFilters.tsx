@@ -71,7 +71,8 @@ export const SidebarFilters = () => {
                                         handleSeverityChange(newSeverities);
                                     }}
                                     classNames={{
-                                        label: "text-tiny text-default-500 w-full",
+                                        base: "cursor-pointer",
+                                        label: "text-tiny text-default-500 w-full cursor-pointer",
                                         wrapper: "before:border-default-400"
                                     }}
                                     size="sm"
