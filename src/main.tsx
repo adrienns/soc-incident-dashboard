@@ -7,7 +7,7 @@ import { Provider } from "./provider.tsx";
 import { Provider as ReduxProvider } from "react-redux";
 import { store } from "./store";
 import { setupInterceptors } from "./api/client";
-import ErrorBoundary from "./components/ErrorBoundary";
+import ErrorBoundary from "./components/feedback/ErrorBoundary";
 import "@/styles/globals.css";
 
 setupInterceptors(store);

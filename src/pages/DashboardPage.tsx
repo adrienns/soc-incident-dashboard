@@ -23,8 +23,8 @@ import {
 import { logout } from "../features/auth/authSlice";
 import { websocketManager } from "../services/websocket";
 import { useURLSync } from "../hooks/useURLSync";
-import { SidebarFilters } from "../components/SidebarFilters";
-import { SummaryCard } from "../components/SummaryCard";
+import { SidebarFilters } from "../features/incidents/SidebarFilters";
+import { SummaryCard } from "../components/ui/SummaryCard";
 import { IncidentsTable } from "../features/incidents/IncidentsTable";
 
 export default function DashboardPage() {
