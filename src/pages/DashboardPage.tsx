@@ -152,7 +152,6 @@ export default function DashboardPage() {
                     <SummaryCard title="MEDIUM" count={summaryCounts.MEDIUM} color={getSeverityColor('MEDIUM')} />
                     <SummaryCard title="LOW" count={summaryCounts.LOW} color={getSeverityColor('LOW')} />
                     <SummaryCard title="OPEN" count={summaryCounts.OPEN} color={getStatusColor('OPEN')} />
-                    <SummaryCard title="RESOLVED" count={summaryCounts.RESOLVED} color={getStatusColor('RESOLVED')} />
                 </div>
 
                 <div className="flex flex-col min-[1425px]:flex-row flex-1 gap-4 md:gap-6 overflow-hidden">
