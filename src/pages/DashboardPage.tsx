@@ -132,6 +132,7 @@ export default function DashboardPage() {
     const handleRetry = () => {
         // If it's an auth error, logout and redirect to login
         if (error && (error.includes('token') || error.includes('login') || error.includes('invalidated'))) {
+            localStorage.removeItem('token'); // Clear the bad token
             dispatch(logout());
         } else {
             // Otherwise, retry fetching incidents
