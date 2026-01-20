@@ -24,6 +24,7 @@ import { useURLSync } from "../hooks/useURLSync";
 import { IncidentFilters } from "../features/incidents/IncidentFilters";
 import { SummaryCard } from "../components/ui/SummaryCard";
 import { IncidentsTable } from "../features/incidents/IncidentsTable";
+import { MobileIncidentsView } from "../features/incidents/MobileIncidentsView";
 import { DashboardHeader } from "../components/layout/DashboardHeader";
 import { getSeverityColor, getStatusColor } from "../utils/severity";
 import { CriticalIncidentModal } from "../components/feedback/CriticalIncidentModal";
@@ -56,6 +57,12 @@ export default function DashboardPage() {
         const updateLayout = () => {
             if (tableContainerRef.current) {
                 const height = tableContainerRef.current.clientHeight;
+
+                // If table is hidden (mobile) or too small, skip calculation or enforce mobile default
+                if (height < 100) {
+                    return;
+                }
+
                 const headerHeight = 60; // Matches IncidentsTable styling
                 const rowHeight = 40;   // Matches IncidentsTable styling
 
@@ -137,9 +144,9 @@ export default function DashboardPage() {
             />
 
             {/* Main Content Area */}
-            <div className="flex flex-col p-6 gap-6 h-[calc(100vh-80px)] overflow-hidden">
+            <div className="flex flex-col p-2 md:p-6 gap-4 md:gap-6 h-[calc(100vh-80px)] overflow-hidden">
                 {/* Summary Row */}
-                <div className="flex flex-wrap gap-4 flex-shrink-0">
+                <div className="flex flex-nowrap md:flex-wrap gap-4 flex-shrink-0 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
                     <SummaryCard title="CRITICAL" count={summaryCounts.CRITICAL} color={getSeverityColor('CRITICAL')} />
                     <SummaryCard title="HIGH" count={summaryCounts.HIGH} color={getSeverityColor('HIGH')} />
                     <SummaryCard title="MEDIUM" count={summaryCounts.MEDIUM} color={getSeverityColor('MEDIUM')} />
@@ -148,49 +155,81 @@ export default function DashboardPage() {
                     <SummaryCard title="RESOLVED" count={summaryCounts.RESOLVED} color={getStatusColor('RESOLVED')} />
                 </div>
 
-                <div className="flex flex-1 gap-6 overflow-hidden">
+                <div className="flex flex-col lg:flex-row flex-1 gap-4 md:gap-6 overflow-hidden">
                     {/* Filters Card */}
-                    <Card className="w-80 h-full bg-content1 dark:bg-content1 flex-shrink-0">
+                    <Card className="w-full h-auto max-h-[35vh] lg:max-h-full lg:w-80 lg:h-full bg-content1 dark:bg-content1 flex-shrink-0">
                         <CardBody className="p-0 overflow-y-auto">
                             <IncidentFilters />
                         </CardBody>
                     </Card>
 
-                    {/* Table Section */}
-                    {/* Ref goes here on the flex-1 container */}
-                    <div ref={tableContainerRef} className="flex-1 flex flex-col min-h-0">
-                        <div className="flex-1 overflow-auto rounded-t-xl bg-content1 shadow-md">
-                            <IncidentsTable />
+                    {/* Main Content Container (Flex 1) */}
+                    <div className="flex-1 flex flex-col min-h-0">
+
+                        {/* DESKTOP: Table View (> 768px) */}
+                        <div ref={tableContainerRef} className="hidden md:flex flex-1 flex-col min-h-0">
+                            <div className="flex-1 overflow-auto rounded-t-xl bg-content1 shadow-md">
+                                <IncidentsTable />
+                            </div>
+                            {/* Desktop Pagination with dynamic padding */}
+                            <div
+                                className="bg-content1 rounded-b-xl flex justify-center shadow-md transition-all duration-200"
+                                style={{
+                                    paddingTop: `${paginationPadding}px`,
+                                    paddingBottom: '12px',
+                                    paddingLeft: '12px',
+                                    paddingRight: '12px'
+                                }}
+                            >
+                                {totalPages > 1 && (
+                                    <Pagination
+                                        total={totalPages}
+                                        page={filters.page}
+                                        onChange={(page) => updateURL({ page })}
+                                        showControls
+                                        color="default"
+                                        variant="light"
+                                        size="sm"
+                                        isCompact
+                                        classNames={{
+                                            cursor: "!rounded-[5px] cursor-pointer",
+                                            item: "!rounded-[5px] hover:!rounded-[5px] data-[active=true]:!rounded-[5px] cursor-pointer",
+                                            prev: "!rounded-[5px] hover:!rounded-[5px] cursor-pointer",
+                                            next: "!rounded-[5px] hover:!rounded-[5px] cursor-pointer"
+                                        }}
+                                    />
+                                )}
+                            </div>
                         </div>
-                        {/* Pagination with dynamic padding */}
-                        <div
-                            className="bg-content1 rounded-b-xl flex justify-center shadow-md transition-all duration-200"
-                            style={{
-                                paddingTop: `${paginationPadding}px`,
-                                paddingBottom: '12px',
-                                paddingLeft: '12px',
-                                paddingRight: '12px'
-                            }}
-                        >
+
+                        {/* MOBILE: Card List View (< 768px) */}
+                        <div className="md:hidden flex-1 flex flex-col min-h-0">
+                            <div className="flex-1 overflow-y-auto">
+                                <MobileIncidentsView />
+                            </div>
+                            {/* Mobile Pagination (Simple fixed padding) */}
                             {totalPages > 1 && (
-                                <Pagination
-                                    total={totalPages}
-                                    page={filters.page}
-                                    onChange={(page) => updateURL({ page })}
-                                    showControls
-                                    color="default"
-                                    variant="light"
-                                    size="sm"
-                                    isCompact
-                                    classNames={{
-                                        cursor: "!rounded-[5px] cursor-pointer",
-                                        item: "!rounded-[5px] hover:!rounded-[5px] data-[active=true]:!rounded-[5px] cursor-pointer",
-                                        prev: "!rounded-[5px] hover:!rounded-[5px] cursor-pointer",
-                                        next: "!rounded-[5px] hover:!rounded-[5px] cursor-pointer"
-                                    }}
-                                />
+                                <div className="flex justify-center py-4 flex-shrink-0">
+                                    <Pagination
+                                        total={totalPages}
+                                        page={filters.page}
+                                        onChange={(page) => updateURL({ page })}
+                                        showControls
+                                        color="default"
+                                        variant="light"
+                                        size="sm"
+                                        isCompact
+                                        classNames={{
+                                            cursor: "!rounded-[5px] cursor-pointer",
+                                            item: "!rounded-[5px] hover:!rounded-[5px] data-[active=true]:!rounded-[5px] cursor-pointer",
+                                            prev: "!rounded-[5px] hover:!rounded-[5px] cursor-pointer",
+                                            next: "!rounded-[5px] hover:!rounded-[5px] cursor-pointer"
+                                        }}
+                                    />
+                                </div>
                             )}
                         </div>
+
                     </div>
                 </div>
             </div>

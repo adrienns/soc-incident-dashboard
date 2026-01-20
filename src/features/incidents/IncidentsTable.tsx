@@ -1,3 +1,4 @@
+import React from "react";
 import {
     Table,
     TableHeader,
@@ -7,6 +8,7 @@ import {
     TableCell,
     Chip,
     Button,
+    Tooltip,
     SortDescriptor
 } from "@heroui/react";
 import { useAppSelector, useAppDispatch } from "../../hooks";
@@ -21,7 +23,7 @@ export const IncidentsTable = () => {
     const dispatch = useAppDispatch();
     const { updateURL } = useURLSync();
 
-    // Define columns
+    // Define columns - Desktop optimized widths
     const columns = [
         { name: "ID", uid: "id", width: "25%" },
         { name: "TIME", uid: "timestamp", sortable: true, width: "15%" },
@@ -36,6 +38,14 @@ export const IncidentsTable = () => {
         const cellValue = incident[columnKey as keyof typeof incident];
 
         switch (columnKey) {
+            case "id":
+                return (
+                    <Tooltip content={cellValue}>
+                        <div className="truncate">
+                            {cellValue}
+                        </div>
+                    </Tooltip>
+                );
             case "severity":
                 return (
                     <Chip
@@ -59,7 +69,7 @@ export const IncidentsTable = () => {
                 );
             case "timestamp":
                 return (
-                    <span className="text-small text-default-500">
+                    <span className="text-small text-default-500 block truncate" title={formatIncidentTimestamp(cellValue)}>
                         {formatIncidentTimestamp(cellValue)}
                     </span>
                 );
@@ -99,11 +109,11 @@ export const IncidentsTable = () => {
             selectionMode="single"
             classNames={{
                 wrapper: "bg-[#27272a] rounded-lg p-0", // Uniform light gray body
-                th: "bg-[#18181b] text-default-500 text-tiny uppercase font-bold text-[0.70rem] tracking-wider py-[20px] px-4 first:rounded-tl-lg last:rounded-tr-lg", // Darker header
-                tr: "hover:bg-[#3f3f46]/40 cursor-pointer transition-colors border-b border-[#3f3f46] last:border-none", // Uniform rows (transparent), visible dividers
-                td: "py-2 px-4 text-default-500", // Standard padding, muted gray text
+                th: "bg-[#18181b] text-default-500 text-tiny uppercase font-bold text-[0.70rem] tracking-wider py-[20px] px-4 first:rounded-tl-lg last:rounded-tr-lg", // Standard px
+                tr: "hover:bg-[#3f3f46]/40 cursor-pointer transition-colors border-b border-[#3f3f46] last:border-none",
+                td: "py-2 px-4 text-default-500", // Standard px
                 thead: "[&>tr]:first:shadow-none",
-                table: "table-fixed",
+                table: "table-fixed", // Fixed table for desktop consistency
             }}
             sortDescriptor={{
                 column: filters.sortBy,
@@ -122,28 +132,21 @@ export const IncidentsTable = () => {
                         key={column.uid}
                         align={column.uid === "actions" ? "end" : "start"}
                         width={(column as any).width}
-                        allowsSorting={false} // Disable default sorting to hide default icon
-                        className="cursor-default" // Use default cursor on the th, pointer on our div
+
+                        allowsSorting={false}
+                        className="cursor-default"
                     >
                         <div
                             className={`flex items-center gap-2 group ${column.uid === 'actions' ? 'justify-end' : ''} ${column.sortable ? 'cursor-pointer select-none hover:opacity-70 transition-opacity' : ''}`}
                             onClick={() => {
                                 if (!column.sortable) return;
-
-                                // Helper to get current effective sort state
                                 const currentSortBy = filters.sortBy || 'timestamp';
                                 const currentSortOrder = filters.sortOrder || 'desc';
-
-                                // Smart default: Severity starts ASC (Critical->Low).
-                                // Timestamp also starts ASC (Oldest->Newest) to ensure effective toggle from default DESC view.
                                 const defaultDirection = 'asc';
-
                                 let newOrder = defaultDirection;
                                 if (currentSortBy === column.uid) {
-                                    // If already sorting by this column, toggle
                                     newOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
                                 }
-
                                 updateURL({
                                     sortBy: column.uid,
                                     sortOrder: newOrder
@@ -169,7 +172,11 @@ export const IncidentsTable = () => {
             <TableBody items={incidents} emptyContent={"No incidents found."}>
                 {(item: any) => (
                     <TableRow key={item.id} className={item.status === 'RESOLVED' ? 'opacity-50' : ''}>
-                        {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                        {(columnKey) => (
+                            <TableCell>
+                                {renderCell(item, columnKey)}
+                            </TableCell>
+                        )}
                     </TableRow>
                 )}
             </TableBody>
