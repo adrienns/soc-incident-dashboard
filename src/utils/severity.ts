@@ -1,4 +1,4 @@
-import type { Severity } from '../constants/incidents';
+import type { Severity, Status } from '../constants/incidents';
 
 /**
  * Single source of truth for severity color mapping
@@ -23,4 +23,19 @@ export const getSeverityColor = (severity: Severity): 'danger' | 'warning' | 'pr
  */
 export const getSeverityBgColor = (severity: Severity): string => {
     return `bg-${getSeverityColor(severity)}`;
+};
+
+/**
+ * Maps status levels to their corresponding HeroUI color variants
+ * Used for components like Chip, Button, etc.
+ */
+export const getStatusColor = (status: Status): 'success' | 'danger' | 'default' => {
+    switch (status) {
+        case 'OPEN':
+            return 'success';
+        case 'ESCALATED':
+            return 'danger';
+        case 'RESOLVED':
+            return 'default';
+    }
 };

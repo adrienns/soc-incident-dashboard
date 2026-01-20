@@ -31,7 +31,7 @@ import { IncidentFilters } from "../features/incidents/IncidentFilters";
 import { SummaryCard } from "../components/ui/SummaryCard";
 import { IncidentsTable } from "../features/incidents/IncidentsTable";
 import { DashboardHeader } from "../components/layout/DashboardHeader";
-import { getSeverityColor } from "../utils/severity";
+import { getSeverityColor, getStatusColor } from "../utils/severity";
 
 export default function DashboardPage() {
     const dispatch = useAppDispatch();
@@ -159,8 +159,8 @@ export default function DashboardPage() {
                     <SummaryCard title="HIGH" count={summaryCounts.HIGH} color={getSeverityColor('HIGH')} />
                     <SummaryCard title="MEDIUM" count={summaryCounts.MEDIUM} color={getSeverityColor('MEDIUM')} />
                     <SummaryCard title="LOW" count={summaryCounts.LOW} color={getSeverityColor('LOW')} />
-                    <SummaryCard title="OPEN" count={summaryCounts.OPEN} color="primary" />
-                    <SummaryCard title="RESOLVED" count={summaryCounts.RESOLVED} color="success" />
+                    <SummaryCard title="OPEN" count={summaryCounts.OPEN} color={getStatusColor('OPEN')} />
+                    <SummaryCard title="RESOLVED" count={summaryCounts.RESOLVED} color={getStatusColor('RESOLVED')} />
                 </div>
 
                 <div className="flex flex-1 gap-6 overflow-hidden">

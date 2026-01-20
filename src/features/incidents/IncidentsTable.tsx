@@ -12,7 +12,8 @@ import {
 import { useAppSelector, useAppDispatch } from "../../hooks";
 import { selectPaginatedIncidents, patchIncidentStatus, selectFilters } from "./incidentsSlice";
 import { useURLSync } from "../../hooks/useURLSync";
-import { getSeverityColor } from "../../utils/severity";
+import { getSeverityColor, getStatusColor } from "../../utils/severity";
+import { formatIncidentTimestamp } from "../../utils/date";
 
 export const IncidentsTable = () => {
     const incidents = useAppSelector(selectPaginatedIncidents);
@@ -49,7 +50,7 @@ export const IncidentsTable = () => {
                 return (
                     <Chip
                         className="capitalize"
-                        color={cellValue === "OPEN" ? "success" : cellValue === "ESCALATED" ? "danger" : "default"}
+                        color={getStatusColor(cellValue)}
                         size="sm"
                         variant="dot"
                     >
@@ -57,17 +58,9 @@ export const IncidentsTable = () => {
                     </Chip>
                 );
             case "timestamp":
-                const date = new Date(cellValue);
                 return (
                     <span className="text-small text-default-500">
-                        {date.toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: false
-                        }).replace(" at", "")}
+                        {formatIncidentTimestamp(cellValue)}
                     </span>
                 );
             case "actions":
