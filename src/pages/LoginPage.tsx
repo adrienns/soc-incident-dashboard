@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     Card,
@@ -24,7 +24,7 @@ export default function LoginPage() {
         }
     }, [isAuthenticated, navigate]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         dispatch(login({ username, password }));
     };
