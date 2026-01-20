@@ -9,10 +9,10 @@ import {
     Button
 } from "@heroui/react";
 import { useAppSelector, useAppDispatch } from "../../hooks";
-import { selectFilteredIncidents, patchIncidentStatus } from "./incidentsSlice";
+import { selectPaginatedIncidents, patchIncidentStatus } from "./incidentsSlice";
 
 export const IncidentsTable = () => {
-    const incidents = useAppSelector(selectFilteredIncidents);
+    const incidents = useAppSelector(selectPaginatedIncidents);
     const dispatch = useAppDispatch();
 
     // Define columns
@@ -79,7 +79,7 @@ export const IncidentsTable = () => {
                             variant="flat"
                             isDisabled={incident.status === 'RESOLVED'}
                             onPress={() => dispatch(patchIncidentStatus({ id: incident.id, status: 'RESOLVED' }))}
-                            className={`font-medium ${incident.status === 'RESOLVED' ? 'opacity-50' : ''}`}
+                            className={`font-medium ${incident.status === 'RESOLVED' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                         >
                             Resolve
                         </Button>
@@ -89,7 +89,7 @@ export const IncidentsTable = () => {
                             variant="flat"
                             isDisabled={incident.status === 'ESCALATED' || incident.status === 'RESOLVED'}
                             onPress={() => dispatch(patchIncidentStatus({ id: incident.id, status: 'ESCALATED' }))}
-                            className={`font-medium ${incident.status === 'ESCALATED' || incident.status === 'RESOLVED' ? 'opacity-50' : ''}`}
+                            className={`font-medium ${incident.status === 'ESCALATED' || incident.status === 'RESOLVED' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                         >
                             Escalate
                         </Button>

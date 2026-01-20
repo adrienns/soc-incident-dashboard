@@ -25,6 +25,8 @@ export interface FilterState {
     search: string;
     sortBy: 'timestamp' | 'severity';
     sortOrder: 'asc' | 'desc';
+    page: number;
+    rowsPerPage: number;
 }
 
 const initialFilters: FilterState = {
@@ -34,6 +36,8 @@ const initialFilters: FilterState = {
     search: '',
     sortBy: 'timestamp',
     sortOrder: 'desc',
+    page: 1,
+    rowsPerPage: 10,
 };
 
 // Normalization: { ids: [], entities: {} }
@@ -137,6 +141,13 @@ const incidentsSlice = createSlice({
                 state.lastCriticalIncident = null;
             }
         },
+        setPage: (state, action: PayloadAction<number>) => {
+            state.filters.page = action.payload;
+        },
+        setRowsPerPage: (state, action: PayloadAction<number>) => {
+            state.filters.rowsPerPage = action.payload;
+            state.filters.page = 1; // Reset to page 1 when changing rows per page
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -155,7 +166,7 @@ const incidentsSlice = createSlice({
     },
 });
 
-export const { incidentReceived, setConnectionStatus, clearCriticalAlert, setFilters, clearFilters, updateIncidentStatusLocal } = incidentsSlice.actions;
+export const { incidentReceived, setConnectionStatus, clearCriticalAlert, setFilters, clearFilters, updateIncidentStatusLocal, setPage, setRowsPerPage } = incidentsSlice.actions;
 export default incidentsSlice.reducer;
 
 // Base selectors
@@ -212,6 +223,17 @@ export const selectFilteredIncidents = createSelector(
         });
 
         return result;
+    }
+);
+
+// Memoized selector for paginated incidents
+export const selectPaginatedIncidents = createSelector(
+    [selectFilteredIncidents, selectFilters],
+    (filteredIncidents, filters) => {
+        const { page, rowsPerPage } = filters;
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        return filteredIncidents.slice(start, end);
     }
 );
 

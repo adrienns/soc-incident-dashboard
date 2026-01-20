@@ -9,6 +9,7 @@ import {
     ModalBody,
     ModalFooter,
     useDisclosure,
+    Pagination,
 } from "@heroui/react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import {
@@ -19,6 +20,8 @@ import {
     selectLastCriticalIncident,
     selectSummaryCounts,
     clearCriticalAlert,
+    selectFilteredIncidents,
+    selectFilters,
 } from "../features/incidents/incidentsSlice";
 import { logout } from "../features/auth/authSlice";
 import { websocketManager } from "../services/websocket";
@@ -39,7 +42,12 @@ export default function DashboardPage() {
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     // Initialize URL sync (watches URL and dispatches to Redux)
-    useURLSync();
+    const { updateURL } = useURLSync();
+
+    // Pagination logic
+    const filteredIncidents = useAppSelector(selectFilteredIncidents);
+    const filters = useAppSelector(selectFilters);
+    const totalPages = Math.ceil(filteredIncidents.length / filters.rowsPerPage);
 
     useEffect(() => {
         if (status === "idle") {
@@ -151,11 +159,30 @@ export default function DashboardPage() {
                         <SummaryCard title="OPEN" count={summaryCounts.OPEN} color="default" />
                     </div>
 
-                    {/* Table Section */}
                     <div className="flex-1 flex flex-col min-h-0">
                         <h2 className="text-xl font-bold tracking-tight mb-4">To Review</h2>
-                        <div className="flex-1 overflow-auto rounded-xl border border-default-200 bg-content1 shadow-sm">
+                        <div className="flex-1 overflow-auto rounded-t-xl border border-default-200 bg-content1 shadow-sm border-b-0">
                             <IncidentsTable />
+                        </div>
+                        <div className="p-3 border border-default-200 border-t-0 bg-content1 rounded-b-xl flex justify-center">
+                            {totalPages > 1 && (
+                                <Pagination
+                                    total={totalPages}
+                                    page={filters.page}
+                                    onChange={(page) => updateURL({ page })}
+                                    showControls
+                                    color="default"
+                                    variant="light"
+                                    size="sm"
+                                    isCompact
+                                    classNames={{
+                                        cursor: "!rounded-[5px] cursor-pointer",
+                                        item: "!rounded-[5px] hover:!rounded-[5px] data-[active=true]:!rounded-[5px] cursor-pointer",
+                                        prev: "!rounded-[5px] hover:!rounded-[5px] cursor-pointer",
+                                        next: "!rounded-[5px] hover:!rounded-[5px] cursor-pointer"
+                                    }}
+                                />
+                            )}
                         </div>
                     </div>
                 </main>

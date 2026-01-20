@@ -42,11 +42,14 @@ export function useURLSync() {
             filters.sortOrder = sortOrderParam;
         }
 
+        const pageParam = searchParams.get('page');
+        filters.page = pageParam ? parseInt(pageParam, 10) : 1;
+
         dispatch(setFilters(filters));
     }, [searchParams, dispatch]);
 
     // Helper to update URL (which triggers the sync above)
-    const updateURL = useCallback((updates: Record<string, string | null>) => {
+    const updateURL = useCallback((updates: Record<string, string | number | null>) => {
         setSearchParams((prev) => {
             const newParams = new URLSearchParams(prev);
 
@@ -54,7 +57,7 @@ export function useURLSync() {
                 if (value === null || value === '') {
                     newParams.delete(key);
                 } else {
-                    newParams.set(key, value);
+                    newParams.set(key, String(value));
                 }
             });
 
