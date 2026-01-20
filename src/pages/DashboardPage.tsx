@@ -158,13 +158,7 @@ export default function DashboardPage() {
 
                     {/* Table Section */}
                     <div className="flex-1 flex flex-col min-h-0">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-bold tracking-tight">To Review</h2>
-                            <div className="flex gap-2">
-                                <Button size="sm" variant="flat">Export</Button>
-                                <Button size="sm" variant="solid" color="primary">Manual Refresh</Button>
-                            </div>
-                        </div>
+                        <h2 className="text-xl font-bold tracking-tight mb-4">To Review</h2>
                         <div className="flex-1 overflow-auto rounded-xl border border-default-200 bg-content1 shadow-sm">
                             <IncidentsTable />
                         </div>
@@ -215,7 +209,7 @@ export default function DashboardPage() {
                         </Button>
                     </ModalFooter>
                 </ModalContent>
-            </Modal>
-        </div>
+            </Modal >
+        </div >
     );
 }

@@ -1,8 +1,9 @@
-import { Checkbox, Input, Button, Accordion, AccordionItem, RadioGroup, Radio, Card, CardBody, CardHeader } from "@heroui/react";
+import { Checkbox, Input, Button, Card, CardBody, CardHeader } from "@heroui/react";
 import { useURLSync } from "../hooks/useURLSync";
 import { useAppSelector } from "../hooks";
 import { selectFilters } from "../features/incidents/incidentsSlice";
 import { SEVERITIES, STATUSES, CATEGORIES } from "../constants/incidents";
+import { AccordionRadioFilter } from "./AccordionRadioFilter";
 
 export const SidebarFilters = () => {
     const { updateURL, clearURL } = useURLSync();
@@ -13,17 +14,8 @@ export const SidebarFilters = () => {
     };
 
     // Card styling constant
-    const cardClassName = "bg-content2/50 border border-default-100 shadow-sm px-0 py-0"; // Padding handled inside
     const headerClassName = "pb-0 pt-3 px-4 flex-col items-start";
     const titleClassName = "text-xs font-semibold text-default-500 uppercase tracking-wider";
-
-    // Accordion styling override to match card look inside card
-    const accordionItemClasses = {
-        title: "text-xs font-semibold text-default-500 uppercase tracking-wider",
-        trigger: "px-4 py-3 data-[hover=true]:bg-default-100/50 rounded-lg",
-        indicator: "text-default-400",
-        content: "px-4 pb-4 pt-0",
-    };
 
     return (
         <div className="flex flex-col gap-4 h-full overflow-y-auto pr-2 pb-4">
@@ -48,14 +40,8 @@ export const SidebarFilters = () => {
                         value={filters.search}
                         onValueChange={(val) => updateURL({ search: val || null })}
                         size="sm"
-                        startContent={
-                            <svg className="w-4 h-4 text-default-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        }
-                        classNames={{
-                            inputWrapper: "bg-default-100/50 border-1 border-default-200 hover:border-default-300 group-data-[focus=true]:border-primary h-8 min-h-unit-8"
-                        }}
+                        isClearable
+                        onClear={() => updateURL({ search: null })}
                     />
                 </CardBody>
             </Card>
@@ -100,67 +86,21 @@ export const SidebarFilters = () => {
                 </CardBody>
             </Card>
 
-            {/* Status Accordion Card */}
-            <Card className={cardClassName} shadow="sm">
-                <CardBody className="p-0">
-                    <Accordion isCompact showDivider={false}>
-                        <AccordionItem
-                            key="status"
-                            aria-label="Status"
-                            title="Status"
-                            classNames={accordionItemClasses}
-                        >
-                            <RadioGroup
-                                value={filters.status || ''}
-                                onValueChange={(val) => updateURL({ status: val || null })}
-                                size="sm"
-                                color="primary"
-                            >
-                                {STATUSES.map((status) => (
-                                    <Radio
-                                        key={status}
-                                        value={status}
-                                        classNames={{ label: "text-small text-default-500 pl-2" }}
-                                    >
-                                        {status}
-                                    </Radio>
-                                ))}
-                            </RadioGroup>
-                        </AccordionItem>
-                    </Accordion>
-                </CardBody>
-            </Card>
+            {/* Status Filter */}
+            <AccordionRadioFilter
+                title="Status"
+                value={filters.status}
+                options={STATUSES}
+                onChange={(val) => updateURL({ status: val })}
+            />
 
-            {/* Category Accordion Card */}
-            <Card className={cardClassName} shadow="sm">
-                <CardBody className="p-0">
-                    <Accordion isCompact showDivider={false}>
-                        <AccordionItem
-                            key="category"
-                            aria-label="Category"
-                            title="Category"
-                            classNames={accordionItemClasses}
-                        >
-                            <RadioGroup
-                                value={filters.category || ''}
-                                onValueChange={(val) => updateURL({ category: val || null })}
-                                size="sm"
-                                color="primary"
-                            >
-                                {CATEGORIES.map((cat) => (
-                                    <Radio
-                                        key={cat}
-                                        value={cat}
-                                        classNames={{ label: "text-small text-default-500 pl-2" }}
-                                    >
-                                        {cat}
-                                    </Radio>
-                                ))}
-                            </RadioGroup>
-                        </AccordionItem>
-                    </Accordion>
-                </CardBody>
-            </Card>
+            {/* Category Filter */}
+            <AccordionRadioFilter
+                title="Category"
+                value={filters.category}
+                options={CATEGORIES}
+                onChange={(val) => updateURL({ category: val })}
+            />
 
             {/* Sort Section */}
             <div className="mt-2">
