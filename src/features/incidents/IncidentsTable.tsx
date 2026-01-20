@@ -23,9 +23,22 @@ export const IncidentsTable = () => {
     const dispatch = useAppDispatch();
     const { updateURL } = useURLSync();
 
-    // Define columns - Desktop optimized widths
+    // Detect tablet/mobile screen size
+    const [isTabletOrSmaller, setIsTabletOrSmaller] = React.useState(
+        typeof window !== 'undefined' ? window.innerWidth < 1425 : false
+    );
+
+    React.useEffect(() => {
+        const handleResize = () => {
+            setIsTabletOrSmaller(window.innerWidth < 1425);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Define columns with responsive widths
     const columns = [
-        { name: "ID", uid: "id", width: "25%" },
+        { name: "ID", uid: "id", width: isTabletOrSmaller ? "10%" : "25%" },
         { name: "TIME", uid: "timestamp", sortable: true, width: "15%" },
         { name: "SEVERITY", uid: "severity", width: "10%" },
         { name: "SOURCE", uid: "source", width: "12%" },
@@ -63,6 +76,9 @@ export const IncidentsTable = () => {
                         color={getStatusColor(cellValue)}
                         size="sm"
                         variant="dot"
+                        classNames={{
+                            content: "gap-1" // 4px gap between dot and text
+                        }}
                     >
                         {cellValue}
                     </Chip>

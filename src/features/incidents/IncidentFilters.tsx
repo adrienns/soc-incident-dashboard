@@ -126,7 +126,6 @@ export const IncidentFilters = () => {
                         options={STATUSES}
                         onChange={(val) => updateURL({ status: val })}
                         defaultExpandedKeys={isLargeScreen ? ["status"] : []}
-                        wrapperClassName={isLargeScreen ? undefined : "grid grid-cols-2 gap-2"}
                     />
 
                     {/* Category Filter */}

@@ -29,12 +29,12 @@ export const getSeverityBgColor = (severity: Severity): string => {
  * Maps status levels to their corresponding HeroUI color variants
  * Used for components like Chip, Button, etc.
  */
-export const getStatusColor = (status: Status): 'success' | 'danger' | 'default' => {
+export const getStatusColor = (status: Status): 'success' | 'secondary' | 'default' => {
     switch (status) {
         case 'OPEN':
             return 'success';
         case 'ESCALATED':
-            return 'danger';
+            return 'secondary';
         case 'RESOLVED':
             return 'default';
     }
