@@ -129,8 +129,18 @@ export default function DashboardPage() {
     };
 
 
+    const handleRetry = () => {
+        // If it's an auth error, logout and redirect to login
+        if (error && (error.includes('token') || error.includes('login') || error.includes('invalidated'))) {
+            dispatch(logout());
+        } else {
+            // Otherwise, retry fetching incidents
+            dispatch(fetchIncidents());
+        }
+    };
+
     if (error) {
-        return <ErrorState message={error} onRetry={() => dispatch(fetchIncidents())} />;
+        return <ErrorState message={error} onRetry={handleRetry} />;
     }
 
 
