@@ -5,7 +5,7 @@ import { selectFilters } from "./incidentsSlice";
 import { SEVERITIES, STATUSES, CATEGORIES } from "../../constants/incidents";
 import { AccordionRadioFilter } from "../../components/ui/AccordionRadioFilter";
 
-export const SidebarFilters = () => {
+export const IncidentFilters = () => {
     const { updateURL, clearURL } = useURLSync();
     const filters = useAppSelector(selectFilters);
 

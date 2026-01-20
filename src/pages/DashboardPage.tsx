@@ -27,7 +27,7 @@ import {
 import { logout } from "../features/auth/authSlice";
 import { websocketManager } from "../services/websocket";
 import { useURLSync } from "../hooks/useURLSync";
-import { SidebarFilters } from "../features/incidents/SidebarFilters";
+import { IncidentFilters } from "../features/incidents/IncidentFilters";
 import { SummaryCard } from "../components/ui/SummaryCard";
 import { IncidentsTable } from "../features/incidents/IncidentsTable";
 
@@ -195,7 +195,7 @@ export default function DashboardPage() {
                     {/* Filters Card */}
                     <Card className="w-80 h-full bg-content1 dark:bg-content1 flex-shrink-0">
                         <CardBody className="p-0 overflow-y-auto">
-                            <SidebarFilters />
+                            <IncidentFilters />
                         </CardBody>
                     </Card>
 
