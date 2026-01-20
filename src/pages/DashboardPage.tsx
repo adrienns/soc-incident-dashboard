@@ -155,9 +155,9 @@ export default function DashboardPage() {
                     <SummaryCard title="RESOLVED" count={summaryCounts.RESOLVED} color={getStatusColor('RESOLVED')} />
                 </div>
 
-                <div className="flex flex-col lg:flex-row flex-1 gap-4 md:gap-6 overflow-hidden">
+                <div className="flex flex-col min-[1425px]:flex-row flex-1 gap-4 md:gap-6 overflow-hidden">
                     {/* Filters Card */}
-                    <Card className="w-full h-auto max-h-[35vh] lg:max-h-full lg:w-80 lg:h-full bg-content1 dark:bg-content1 flex-shrink-0">
+                    <Card className="w-full h-auto max-h-[35vh] min-[1425px]:max-h-full min-[1425px]:w-80 min-[1425px]:h-full bg-content1 dark:bg-content1 flex-shrink-0">
                         <CardBody className="p-0 overflow-y-auto">
                             <IncidentFilters />
                         </CardBody>

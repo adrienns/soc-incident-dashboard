@@ -5,11 +5,12 @@ interface AccordionRadioFilterProps {
     value: string | null;
     options: readonly string[];
     onChange: (value: string | null) => void;
+    defaultExpandedKeys?: string[];
 }
 
 const accordionItemClasses = {
     title: "text-xs font-semibold text-default-500 uppercase tracking-wider",
-    trigger: "px-4 py-3 data-[hover=true]:bg-default-100/50 rounded-lg",
+    trigger: "px-4 py-3 rounded-lg",
     indicator: "text-default-400",
     content: "px-4 pb-4 pt-0",
 };
@@ -19,11 +20,13 @@ export const AccordionRadioFilter = ({
     value,
     options,
     onChange,
-}: AccordionRadioFilterProps) => {
+    defaultExpandedKeys,
+    wrapperClassName,
+}: AccordionRadioFilterProps & { wrapperClassName?: string }) => {
     return (
         <Card className="bg-content2/50 border border-default-100 shadow-sm px-0 py-0" shadow="sm">
             <CardBody className="p-0">
-                <Accordion isCompact showDivider={false} defaultExpandedKeys={[title.toLowerCase()]}>
+                <Accordion isCompact showDivider={false} defaultExpandedKeys={defaultExpandedKeys ?? [title.toLowerCase()]}>
                     <AccordionItem
                         key={title.toLowerCase()}
                         aria-label={title}
@@ -34,6 +37,7 @@ export const AccordionRadioFilter = ({
                             value={value || ''}
                             onValueChange={(val) => onChange(val || null)}
                             size="sm"
+                            classNames={{ wrapper: wrapperClassName }}
                             color="primary"
                         >
                             {options.map((option) => (
