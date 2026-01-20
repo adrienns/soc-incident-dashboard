@@ -23,7 +23,7 @@ export const AccordionRadioFilter = ({
     return (
         <Card className="bg-content2/50 border border-default-100 shadow-sm px-0 py-0" shadow="sm">
             <CardBody className="p-0">
-                <Accordion isCompact showDivider={false}>
+                <Accordion isCompact showDivider={false} defaultExpandedKeys={[title.toLowerCase()]}>
                     <AccordionItem
                         key={title.toLowerCase()}
                         aria-label={title}
