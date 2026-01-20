@@ -72,11 +72,23 @@ export const IncidentFilters = () => {
                                     classNames={{
                                         base: "cursor-pointer m-0",
                                         label: "text-tiny text-default-500 w-full cursor-pointer",
-                                        wrapper: "before:border-default-400"
+                                        wrapper: `before:border-default-400 group-data-[selected=true]:!${getSeverityBgColor(sev)} group-data-[selected=true]:!border-${getSeverityBgColor(sev).replace('bg-', '')} text-white`
                                     }}
                                     size="sm"
                                     color="default"
-                                    icon={<div className={`w-2 h-2 rounded-sm ${getSeverityBgColor(sev)}`} />}
+                                    icon={<svg
+                                        className="w-3 h-3"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={3}
+                                            d="M5 13l4 4L19 7"
+                                        />
+                                    </svg>}
                                 >
                                     {sev}
                                 </Checkbox>
