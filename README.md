@@ -1,50 +1,73 @@
-# Vite & HeroUI Template
+# SOC Incident Dashboard
 
-This is a template for creating applications using Vite and HeroUI (v2).
+Real-time Security Operations Center dashboard for monitoring and managing security incidents. Built with React, Redux Toolkit, and WebSocket integration.
 
-[Try it on CodeSandbox](https://githubbox.com/heroui-inc/vite-template)
+## Features
 
-## Technologies Used
+- **Real-Time Updates**: Live incident updates via WebSocket with automatic reconnection
+- **Advanced Filtering**: Multi-criteria filtering with URL-synchronized state
+- **Responsive Design**: Mobile-optimized with adaptive layouts
+- **Optimistic Updates**: Instant UI feedback with automatic rollback on errors
+- **Critical Alerts**: Modal notifications for critical severity incidents
 
-- [Vite](https://vitejs.dev/guide/)
-- [HeroUI](https://heroui.com)
-- [Tailwind CSS](https://tailwindcss.com)
-- [Tailwind Variants](https://tailwind-variants.org)
-- [TypeScript](https://www.typescriptlang.org)
-- [Framer Motion](https://www.framer.com/motion)
+## Tech Stack
 
-## How to Use
+- React 18 + TypeScript
+- Redux Toolkit (normalized state with EntityAdapter)
+- HeroUI + Tailwind CSS
+- Socket.IO Client
+- Axios with token refresh
+- Vite
 
-To clone the project, run the following command:
-
-```bash
-git clone https://github.com/heroui-inc/vite-template.git
-```
-
-### Install dependencies
-
-You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `npm`:
+## Getting Started
 
 ```bash
 npm install
-```
-
-### Run the development server
-
-```bash
 npm run dev
 ```
 
-### Setup pnpm (optional)
+Default credentials: `analyst` / `s3cur3`
 
-If you are using `pnpm`, you need to add the following code to your `.npmrc` file:
+## Redux Store Design
 
-```bash
-public-hoist-pattern[]=*@heroui/*
+### State Structure
+
+The store is split into two slices: `auth` and `incidents`. The auth slice handles login/logout and token management, storing the JWT in localStorage so users stay logged in across refreshes. The incidents slice is where things get more interesting.
+
+For incidents, Redux Toolkit's `createEntityAdapter` is used to normalize the data. Instead of storing incidents as an array, they're stored as `{ ids: [], entities: {} }`. This makes it super fast to look up or update a specific incident by ID - no need to loop through arrays. When a WebSocket update comes in for one incident, just that one gets updated without touching the others.
+
+### Why These Choices?
+
+**Memoized selectors**: `createSelector` is used for all filtering and sorting. This means if you change the search filter, only the search logic runs - not the severity filter, not the sorting, nothing else. It only recalculates what actually changed. This keeps the UI snappy even with lots of incidents.
+
+**Optimistic updates**: When you click "Resolve" on an incident, the UI updates immediately. Behind the scenes, the API call happens, and if it fails, the change gets rolled back. Users don't have to wait for the server to respond to see their action reflected.
+
+**Filters in Redux + URL**: Filter state is kept in Redux but synced with URL query params. This means you can share a filtered view by just copying the URL. A custom `useURLSync` hook watches for URL changes and updates Redux, and vice versa. The URL is the source of truth.
+
+**WebSocket separation**: The WebSocket manager lives outside Redux as a service. When new incidents arrive, it just dispatches an `incidentReceived` action. This keeps Redux pure and makes it easier to handle connection/reconnection logic separately.
+
+## Architecture Highlights
+
+- **State Management**: Redux Toolkit with memoized selectors and normalized state
+- **Real-Time**: WebSocket connection with resilient reconnection strategy
+- **Authentication**: JWT with automatic token refresh and request queuing
+- **Performance**: Client-side filtering, pagination, and optimistic updates
+- **Error Handling**: Comprehensive error boundaries and fallback states
+
+## Project Structure
+
+```
+src/
+├── features/          # Feature-based modules (auth, incidents)
+├── components/        # Reusable UI components
+├── hooks/            # Custom hooks (useURLSync, useMediaQuery)
+├── services/         # WebSocket manager
+└── api/              # HTTP client with interceptors
 ```
 
-After modifying the `.npmrc` file, you need to run `pnpm install` again to ensure that the dependencies are installed correctly.
+## API Integration
 
-## License
-
-Licensed under the [MIT license](https://github.com/heroui-inc/vite-template/blob/main/LICENSE).
+- `POST /api/auth/login` - Authentication
+- `GET /api/incidents` - Fetch incidents
+- `PATCH /api/incidents/:id` - Update incident status
+- WebSocket events: `incident_update`, `incident`, `new_incident`
