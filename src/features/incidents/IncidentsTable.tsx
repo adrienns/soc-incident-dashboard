@@ -26,9 +26,9 @@ export const IncidentsTable = () => {
         { name: "ID", uid: "id", width: "25%" },
         { name: "TIME", uid: "timestamp", sortable: true, width: "15%" },
         { name: "SEVERITY", uid: "severity", width: "10%" },
-        { name: "SOURCE", uid: "source", width: "15%" },
-        { name: "CATEGORY", uid: "category", width: "10%" },
-        { name: "STATUS", uid: "status", width: "10%" },
+        { name: "SOURCE", uid: "source", width: "12%" },
+        { name: "CATEGORY", uid: "category", width: "15%" },
+        { name: "STATUS", uid: "status", width: "8%" },
         { name: "ACTIONS", uid: "actions", width: "15%" },
     ];
 
