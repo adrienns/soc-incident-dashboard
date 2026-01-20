@@ -6,20 +6,24 @@ import {
     TableRow,
     TableCell,
     Chip,
-    Button
+    Button,
+    SortDescriptor
 } from "@heroui/react";
 import { useAppSelector, useAppDispatch } from "../../hooks";
-import { selectPaginatedIncidents, patchIncidentStatus } from "./incidentsSlice";
+import { selectPaginatedIncidents, patchIncidentStatus, selectFilters } from "./incidentsSlice";
+import { useURLSync } from "../../hooks/useURLSync";
 
 export const IncidentsTable = () => {
     const incidents = useAppSelector(selectPaginatedIncidents);
+    const filters = useAppSelector(selectFilters);
     const dispatch = useAppDispatch();
+    const { updateURL } = useURLSync();
 
     // Define columns
     const columns = [
         { name: "ID", uid: "id" },
-        { name: "TIMESTAMP", uid: "timestamp" },
-        { name: "SEVERITY", uid: "severity" },
+        { name: "TIMESTAMP", uid: "timestamp", sortable: true },
+        { name: "SEVERITY", uid: "severity", sortable: true },
         { name: "SOURCE", uid: "source" },
         { name: "CATEGORY", uid: "category" },
         { name: "STATUS", uid: "status" },
@@ -72,7 +76,7 @@ export const IncidentsTable = () => {
                 );
             case "actions":
                 return (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 justify-end">
                         <Button
                             color="success"
                             size="sm"
@@ -102,13 +106,35 @@ export const IncidentsTable = () => {
 
 
     return (
-        <Table aria-label="Incidents Table" selectionMode="single" classNames={{
-            wrapper: "bg-content1",
-            tr: "cursor-pointer hover:bg-default-100 transition-colors",
-        }}>
+        <Table
+            aria-label="Incidents Table"
+            selectionMode="single"
+            removeWrapper
+            isHeaderSticky
+            classNames={{
+                wrapper: "bg-content1",
+                tr: "cursor-pointer hover:bg-default-100 transition-colors",
+                table: "table-fixed",
+                th: "!rounded-none"
+            }}
+            sortDescriptor={{
+                column: filters.sortBy,
+                direction: filters.sortOrder === 'asc' ? 'ascending' : 'descending'
+            }}
+            onSortChange={(descriptor: SortDescriptor) => {
+                updateURL({
+                    sortBy: descriptor.column as string,
+                    sortOrder: descriptor.direction === 'ascending' ? 'asc' : 'desc'
+                });
+            }}
+        >
             <TableHeader columns={columns}>
                 {(column) => (
-                    <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
+                    <TableColumn
+                        key={column.uid}
+                        align={column.uid === "actions" ? "end" : "start"}
+                        allowsSorting={column.sortable}
+                    >
                         {column.name}
                     </TableColumn>
                 )}

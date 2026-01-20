@@ -115,7 +115,7 @@ export default function DashboardPage() {
     return (
         <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
             {/* Top Bar */}
-            <header className="h-20 border-b border-default-200 flex items-center justify-between px-8 bg-content1 flex-shrink-0 z-20">
+            <header className="h-20 flex items-center justify-between px-8 bg-content1 flex-shrink-0 z-20">
                 <div className="flex items-center gap-4">
                     <div className="p-3 rounded-xl bg-primary/10">
                         <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,29 +142,30 @@ export default function DashboardPage() {
             </header>
 
             {/* Main Content Area */}
-            <div className="flex flex-1 overflow-hidden">
-                {/* Sidebar */}
-                <aside className="w-80 border-r border-default-200 bg-content1 dark:bg-content1 p-6 flex flex-col gap-6 overflow-y-auto z-10">
-                    <SidebarFilters />
-                </aside>
+            <div className="flex flex-col p-6 gap-6 h-[calc(100vh-80px)] overflow-hidden">
+                {/* Summary Row */}
+                <div className="flex flex-wrap gap-4 flex-shrink-0">
+                    <SummaryCard title="CRITICAL" count={summaryCounts.CRITICAL} color="danger" />
+                    <SummaryCard title="HIGH" count={summaryCounts.HIGH} color="warning" />
+                    <SummaryCard title="MEDIUM" count={summaryCounts.MEDIUM} color="primary" />
+                    <SummaryCard title="LOW" count={summaryCounts.LOW} color="default" />
+                    <SummaryCard title="OPEN" count={summaryCounts.OPEN} color="default" />
+                </div>
 
-                {/* Main View */}
-                <main className="flex-1 flex flex-col bg-background p-6 overflow-hidden relative">
-                    {/* Summary Row */}
-                    <div className="flex flex-wrap gap-4 mb-6 flex-shrink-0">
-                        <SummaryCard title="CRITICAL" count={summaryCounts.CRITICAL} color="danger" />
-                        <SummaryCard title="HIGH" count={summaryCounts.HIGH} color="warning" />
-                        <SummaryCard title="MEDIUM" count={summaryCounts.MEDIUM} color="primary" />
-                        <SummaryCard title="LOW" count={summaryCounts.LOW} color="default" />
-                        <SummaryCard title="OPEN" count={summaryCounts.OPEN} color="default" />
-                    </div>
+                <div className="flex flex-1 gap-6 overflow-hidden">
+                    {/* Filters Card */}
+                    <Card className="w-80 h-full bg-content1 dark:bg-content1 flex-shrink-0">
+                        <CardBody className="p-0 overflow-y-auto">
+                            <SidebarFilters />
+                        </CardBody>
+                    </Card>
 
+                    {/* Table Section */}
                     <div className="flex-1 flex flex-col min-h-0">
-                        <h2 className="text-xl font-bold tracking-tight mb-4">To Review</h2>
-                        <div className="flex-1 overflow-auto rounded-t-xl border border-default-200 bg-content1 shadow-sm border-b-0">
+                        <div className="flex-1 overflow-auto rounded-t-xl bg-content1 shadow-md">
                             <IncidentsTable />
                         </div>
-                        <div className="p-3 border border-default-200 border-t-0 bg-content1 rounded-b-xl flex justify-center">
+                        <div className="p-3 bg-content1 rounded-b-xl flex justify-center shadow-md">
                             {totalPages > 1 && (
                                 <Pagination
                                     total={totalPages}
@@ -185,7 +186,7 @@ export default function DashboardPage() {
                             )}
                         </div>
                     </div>
-                </main>
+                </div>
             </div>
 
             {/* Critical Incident Alert Modal */}
