@@ -1,9 +1,9 @@
 import { Checkbox, Input, Button, Card, CardBody, CardHeader } from "@heroui/react";
-import { useURLSync } from "../hooks/useURLSync";
-import { useAppSelector } from "../hooks";
-import { selectFilters } from "../features/incidents/incidentsSlice";
-import { SEVERITIES, STATUSES, CATEGORIES } from "../constants/incidents";
-import { AccordionRadioFilter } from "./AccordionRadioFilter";
+import { useURLSync } from "../../hooks/useURLSync";
+import { useAppSelector } from "../../hooks";
+import { selectFilters } from "./incidentsSlice";
+import { SEVERITIES, STATUSES, CATEGORIES } from "../../constants/incidents";
+import { AccordionRadioFilter } from "../../components/ui/AccordionRadioFilter";
 
 export const SidebarFilters = () => {
     const { updateURL, clearURL } = useURLSync();
