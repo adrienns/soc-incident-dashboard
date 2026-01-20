@@ -23,9 +23,9 @@ export const IncidentFilters = () => {
                 <h3 className="text-lg font-bold text-default-700 dark:text-default-300 tracking-tight">Filters</h3>
                 <Button
                     size="sm"
-                    color="danger"
-                    variant="light"
-                    className="text-danger font-medium px-2 min-w-0 h-8"
+                    variant="ghost"
+                    color="default"
+                    className="text-default-400 hover:text-default-500 min-w-0"
                     onPress={clearURL}
                 >
                     Reset
