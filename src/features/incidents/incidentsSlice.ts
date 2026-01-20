@@ -37,7 +37,7 @@ const initialFilters: FilterState = {
     sortBy: 'timestamp',
     sortOrder: 'desc',
     page: 1,
-    rowsPerPage: 10,
+    rowsPerPage: 11,
 };
 
 // Normalization: { ids: [], entities: {} }

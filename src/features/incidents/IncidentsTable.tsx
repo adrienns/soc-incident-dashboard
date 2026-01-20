@@ -21,13 +21,13 @@ export const IncidentsTable = () => {
 
     // Define columns
     const columns = [
-        { name: "ID", uid: "id" },
-        { name: "TIME", uid: "timestamp", sortable: true },
-        { name: "SEVERITY", uid: "severity" },
-        { name: "SOURCE", uid: "source" },
-        { name: "CATEGORY", uid: "category" },
-        { name: "STATUS", uid: "status" },
-        { name: "ACTIONS", uid: "actions" },
+        { name: "ID", uid: "id", width: "25%" },
+        { name: "TIME", uid: "timestamp", sortable: true, width: "15%" },
+        { name: "SEVERITY", uid: "severity", width: "10%" },
+        { name: "SOURCE", uid: "source", width: "15%" },
+        { name: "CATEGORY", uid: "category", width: "10%" },
+        { name: "STATUS", uid: "status", width: "10%" },
+        { name: "ACTIONS", uid: "actions", width: "15%" },
     ];
 
     const renderCell = (incident: any, columnKey: React.Key) => {
@@ -64,15 +64,18 @@ export const IncidentsTable = () => {
                     </Chip>
                 );
             case "timestamp":
+                const date = new Date(cellValue);
                 return (
-                    <div className="flex flex-col">
-                        <span className="text-bold text-small capitalize">
-                            {new Date(cellValue).toLocaleTimeString()}
-                        </span>
-                        <span className="text-tiny text-default-400">
-                            {new Date(cellValue).toLocaleDateString()}
-                        </span>
-                    </div>
+                    <span className="text-small text-default-500">
+                        {date.toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false
+                        }).replace(" at", "")}
+                    </span>
                 );
             case "actions":
                 return (
@@ -104,18 +107,17 @@ export const IncidentsTable = () => {
         }
     };
 
-
     return (
         <Table
             aria-label="Incidents Table"
             selectionMode="single"
-            removeWrapper
-            isHeaderSticky
             classNames={{
-                wrapper: "bg-content1",
-                tr: "cursor-pointer hover:bg-default-100 transition-colors",
+                wrapper: "bg-[#27272a] rounded-lg p-0", // Uniform light gray body
+                th: "bg-[#18181b] text-default-500 text-tiny uppercase font-bold text-[0.70rem] tracking-wider py-[20px] px-4 first:rounded-tl-lg last:rounded-tr-lg", // Darker header
+                tr: "hover:bg-[#3f3f46]/40 cursor-pointer transition-colors border-b border-[#3f3f46] last:border-none", // Uniform rows (transparent), visible dividers
+                td: "py-2 px-4 text-default-500", // Standard padding, muted gray text
+                thead: "[&>tr]:first:shadow-none",
                 table: "table-fixed",
-                th: "!rounded-none"
             }}
             sortDescriptor={{
                 column: filters.sortBy,
@@ -133,6 +135,7 @@ export const IncidentsTable = () => {
                     <TableColumn
                         key={column.uid}
                         align={column.uid === "actions" ? "end" : "start"}
+                        width={(column as any).width}
                         allowsSorting={false} // Disable default sorting to hide default icon
                         className="cursor-default" // Use default cursor on the th, pointer on our div
                     >
@@ -179,7 +182,7 @@ export const IncidentsTable = () => {
             </TableHeader>
             <TableBody items={incidents} emptyContent={"No incidents found."}>
                 {(item: any) => (
-                    <TableRow key={item.id}>
+                    <TableRow key={item.id} className={item.status === 'RESOLVED' ? 'opacity-50' : ''}>
                         {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
                     </TableRow>
                 )}
