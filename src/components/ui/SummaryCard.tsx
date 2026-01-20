@@ -7,15 +7,8 @@ interface SummaryCardProps {
 }
 
 export const SummaryCard = ({ title, count, color }: SummaryCardProps) => {
-    const colorMap = {
-        danger: "danger",
-        warning: "warning",
-        primary: "primary",
-        success: "success",
-        secondary: "secondary",
-        default: "default-500"
-    };
-    const colorClass = colorMap[color] || "default-500";
+    // Handle default color special case (needs -500 suffix for proper contrast)
+    const colorClass = color === 'default' ? 'default-500' : color;
 
     return (
         <Card classNames={{ base: `border border-${colorClass} shadow-sm` }} className="bg-content1 dark:bg-content2 w-28 cursor-default" style={{ borderRadius: '5px' }}>

@@ -31,6 +31,7 @@ import { IncidentFilters } from "../features/incidents/IncidentFilters";
 import { SummaryCard } from "../components/ui/SummaryCard";
 import { IncidentsTable } from "../features/incidents/IncidentsTable";
 import { DashboardHeader } from "../components/layout/DashboardHeader";
+import { getSeverityColor } from "../utils/severity";
 
 export default function DashboardPage() {
     const dispatch = useAppDispatch();
@@ -154,10 +155,10 @@ export default function DashboardPage() {
             <div className="flex flex-col p-6 gap-6 h-[calc(100vh-80px)] overflow-hidden">
                 {/* Summary Row */}
                 <div className="flex flex-wrap gap-4 flex-shrink-0">
-                    <SummaryCard title="CRITICAL" count={summaryCounts.CRITICAL} color="danger" />
-                    <SummaryCard title="HIGH" count={summaryCounts.HIGH} color="warning" />
-                    <SummaryCard title="MEDIUM" count={summaryCounts.MEDIUM} color="primary" />
-                    <SummaryCard title="LOW" count={summaryCounts.LOW} color="default" />
+                    <SummaryCard title="CRITICAL" count={summaryCounts.CRITICAL} color={getSeverityColor('CRITICAL')} />
+                    <SummaryCard title="HIGH" count={summaryCounts.HIGH} color={getSeverityColor('HIGH')} />
+                    <SummaryCard title="MEDIUM" count={summaryCounts.MEDIUM} color={getSeverityColor('MEDIUM')} />
+                    <SummaryCard title="LOW" count={summaryCounts.LOW} color={getSeverityColor('LOW')} />
                     <SummaryCard title="OPEN" count={summaryCounts.OPEN} color="primary" />
                     <SummaryCard title="RESOLVED" count={summaryCounts.RESOLVED} color="success" />
                 </div>
