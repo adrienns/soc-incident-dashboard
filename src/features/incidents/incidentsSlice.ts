@@ -241,10 +241,10 @@ export const selectPaginatedIncidents = createSelector(
 export const selectSummaryCounts = createSelector(
     [selectAllIncidents],
     (incidents) => {
-        const counts = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0, OPEN: 0, total: 0 };
+        const counts = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0, OPEN: 0, RESOLVED: 0, ESCALATED: 0, total: 0 };
         incidents.forEach((inc) => {
             counts[inc.severity]++;
-            if (inc.status === 'OPEN') counts.OPEN++;
+            counts[inc.status]++; // Using status as key since they match
             counts.total++;
         });
         return counts;

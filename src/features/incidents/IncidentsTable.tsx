@@ -22,8 +22,8 @@ export const IncidentsTable = () => {
     // Define columns
     const columns = [
         { name: "ID", uid: "id" },
-        { name: "TIMESTAMP", uid: "timestamp", sortable: true },
-        { name: "SEVERITY", uid: "severity", sortable: true },
+        { name: "TIME", uid: "timestamp", sortable: true },
+        { name: "SEVERITY", uid: "severity" },
         { name: "SOURCE", uid: "source" },
         { name: "CATEGORY", uid: "category" },
         { name: "STATUS", uid: "status" },
@@ -88,7 +88,7 @@ export const IncidentsTable = () => {
                             Resolve
                         </Button>
                         <Button
-                            color="danger"
+                            color="secondary"
                             size="sm"
                             variant="flat"
                             isDisabled={incident.status === 'ESCALATED' || incident.status === 'RESOLVED'}
@@ -133,9 +133,47 @@ export const IncidentsTable = () => {
                     <TableColumn
                         key={column.uid}
                         align={column.uid === "actions" ? "end" : "start"}
-                        allowsSorting={column.sortable}
+                        allowsSorting={false} // Disable default sorting to hide default icon
+                        className="cursor-default" // Use default cursor on the th, pointer on our div
                     >
-                        {column.name}
+                        <div
+                            className={`flex items-center gap-2 group ${column.uid === 'actions' ? 'justify-end' : ''} ${column.sortable ? 'cursor-pointer select-none hover:opacity-70 transition-opacity' : ''}`}
+                            onClick={() => {
+                                if (!column.sortable) return;
+
+                                // Helper to get current effective sort state
+                                const currentSortBy = filters.sortBy || 'timestamp';
+                                const currentSortOrder = filters.sortOrder || 'desc';
+
+                                // Smart default: Severity starts ASC (Critical->Low).
+                                // Timestamp also starts ASC (Oldest->Newest) to ensure effective toggle from default DESC view.
+                                const defaultDirection = 'asc';
+
+                                let newOrder = defaultDirection;
+                                if (currentSortBy === column.uid) {
+                                    // If already sorting by this column, toggle
+                                    newOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+                                }
+
+                                updateURL({
+                                    sortBy: column.uid,
+                                    sortOrder: newOrder
+                                });
+                            }}
+                        >
+                            <span className="text-small font-semibold relative z-10">{column.name}</span>
+                            {column.sortable && (
+                                <svg
+                                    className={`w-3.5 h-3.5 transition-transform duration-200 ${(filters.sortOrder || 'desc') === 'asc' ? 'rotate-180' : ''}`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={2.5}
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            )}
+                        </div>
                     </TableColumn>
                 )}
             </TableHeader>

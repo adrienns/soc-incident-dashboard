@@ -12,7 +12,9 @@ export const SummaryCard = ({ title, count, color }: SummaryCardProps) => (
             <span className={`text-xl font-bold ${color === 'danger' ? 'text-danger' :
                 color === 'warning' ? 'text-warning' :
                     color === 'primary' ? 'text-primary' :
-                        'text-default-500'
+                        color === 'success' ? 'text-success' :
+                            color === 'secondary' ? 'text-secondary' :
+                                'text-default-500'
                 }`}>{count}</span>
             <span className="text-xs font-semibold uppercase text-default-500">{title}</span>
         </CardBody>

@@ -33,8 +33,8 @@ export function useURLSync() {
         filters.search = searchParam || '';
 
         const sortByParam = searchParams.get('sortBy');
-        if (sortByParam === 'severity' || sortByParam === 'timestamp') {
-            filters.sortBy = sortByParam;
+        if (sortByParam) {
+            filters.sortBy = sortByParam as any;
         }
 
         const sortOrderParam = searchParams.get('sortOrder');

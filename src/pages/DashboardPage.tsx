@@ -149,7 +149,8 @@ export default function DashboardPage() {
                     <SummaryCard title="HIGH" count={summaryCounts.HIGH} color="warning" />
                     <SummaryCard title="MEDIUM" count={summaryCounts.MEDIUM} color="primary" />
                     <SummaryCard title="LOW" count={summaryCounts.LOW} color="default" />
-                    <SummaryCard title="OPEN" count={summaryCounts.OPEN} color="default" />
+                    <SummaryCard title="OPEN" count={summaryCounts.OPEN} color="primary" />
+                    <SummaryCard title="RESOLVED" count={summaryCounts.RESOLVED} color="success" />
                 </div>
 
                 <div className="flex flex-1 gap-6 overflow-hidden">
