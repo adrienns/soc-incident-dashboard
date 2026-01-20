@@ -4,6 +4,7 @@ import { useAppSelector } from "../../hooks";
 import { selectFilters } from "./incidentsSlice";
 import { SEVERITIES, STATUSES, CATEGORIES } from "../../constants/incidents";
 import { AccordionRadioFilter } from "../../components/ui/AccordionRadioFilter";
+import { getSeverityBgColor } from "../../utils/severity";
 
 export const IncidentFilters = () => {
     const { updateURL, clearURL } = useURLSync();
@@ -57,11 +58,6 @@ export const IncidentFilters = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                         {SEVERITIES.map((sev) => {
-                            const colorClass =
-                                sev === 'CRITICAL' ? 'bg-danger' :
-                                    sev === 'HIGH' ? 'bg-danger-400' :
-                                        sev === 'MEDIUM' ? 'bg-warning' : 'bg-default-400';
-
                             return (
                                 <Checkbox
                                     key={sev}
@@ -80,7 +76,7 @@ export const IncidentFilters = () => {
                                     }}
                                     size="sm"
                                     color="default"
-                                    icon={<div className={`w-2 h-2 rounded-sm ${colorClass}`} />}
+                                    icon={<div className={`w-2 h-2 rounded-sm ${getSeverityBgColor(sev)}`} />}
                                 >
                                     {sev}
                                 </Checkbox>

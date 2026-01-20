@@ -12,6 +12,7 @@ import {
 import { useAppSelector, useAppDispatch } from "../../hooks";
 import { selectPaginatedIncidents, patchIncidentStatus, selectFilters } from "./incidentsSlice";
 import { useURLSync } from "../../hooks/useURLSync";
+import { getSeverityColor } from "../../utils/severity";
 
 export const IncidentsTable = () => {
     const incidents = useAppSelector(selectPaginatedIncidents);
@@ -37,15 +38,7 @@ export const IncidentsTable = () => {
             case "severity":
                 return (
                     <Chip
-                        color={
-                            incident.severity === "CRITICAL"
-                                ? "danger"
-                                : incident.severity === "HIGH"
-                                    ? "warning"
-                                    : incident.severity === "MEDIUM"
-                                        ? "primary"
-                                        : "default"
-                        }
+                        color={getSeverityColor(incident.severity)}
                         size="sm"
                         variant="flat"
                     >
