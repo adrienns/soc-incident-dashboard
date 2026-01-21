@@ -7,7 +7,11 @@ import { AccordionRadioFilter } from "../../components/ui/AccordionRadioFilter";
 import { getSeverityBgColor } from "../../utils/severity";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 
-export const IncidentFilters = () => {
+interface IncidentFiltersProps {
+    isInDrawer?: boolean;
+}
+
+export const IncidentFilters = ({ isInDrawer = false }: IncidentFiltersProps) => {
     const { updateURL, clearURL } = useURLSync();
     const filters = useAppSelector(selectFilters);
     const isLargeScreen = useMediaQuery('(min-width: 1425px)');
@@ -16,22 +20,25 @@ export const IncidentFilters = () => {
         updateURL({ severity: values.length > 0 ? values.join(',') : null });
     };
 
-
+    // In drawer mode, always expand all accordions for better mobile UX
+    const shouldExpandAccordions = isInDrawer || isLargeScreen;
 
     return (
-        <div className="flex flex-col gap-6 p-4 h-full">
-            <div className="flex justify-between items-center bg-content1">
-                <h3 className="text-lg font-bold text-default-700 dark:text-default-300 tracking-tight">Filters</h3>
-                <Button
-                    size="sm"
-                    variant="ghost"
-                    color="default"
-                    className="text-default-400 hover:text-default-500 min-w-0"
-                    onPress={clearURL}
-                >
-                    Reset
-                </Button>
-            </div>
+        <div className={isInDrawer ? "flex flex-col gap-6 p-6" : "flex flex-col gap-6 p-4 h-full"}>
+            {!isInDrawer && (
+                <div className="flex justify-between items-center bg-content1">
+                    <h3 className="text-lg font-bold text-default-700 dark:text-default-300 tracking-tight">Filters</h3>
+                    <Button
+                        size="sm"
+                        variant="ghost"
+                        color="default"
+                        className="text-default-400 hover:text-default-500 min-w-0"
+                        onPress={clearURL}
+                    >
+                        Reset
+                    </Button>
+                </div>
+            )}
 
             <div className="flex flex-col gap-4">
                 {/* Search */}
@@ -44,24 +51,25 @@ export const IncidentFilters = () => {
                         isClearable
                         onClear={() => updateURL({ search: null })}
                         classNames={{
-                            inputWrapper: "bg-default-100/50 hover:bg-default-200/50 group-data-[focus=true]:bg-default-100"
+                            inputWrapper: "bg-[#27272a] hover:bg-[#3f3f46] group-data-[focus=true]:bg-[#3f3f46] border border-[#3f3f46]",
+                            input: "text-default-300"
                         }}
                         endContent={
-                            <svg className="w-4 h-4 text-default-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                            <svg className="w-4 h-4 text-default-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                         }
                     />
                 </div>
 
-                {/* Filter Grid: Row < 1425, Col >= 1425 */}
-                <div className="grid grid-cols-1 md:grid-cols-3 items-start min-[1425px]:flex min-[1425px]:flex-col min-[1425px]:items-stretch gap-4">
+                {/* Filter Grid: Single column in drawer, responsive grid otherwise */}
+                <div className={isInDrawer ? "flex flex-col gap-4" : "grid grid-cols-1 md:grid-cols-3 items-start min-[1425px]:flex min-[1425px]:flex-col min-[1425px]:items-stretch gap-4"}>
                     {/* Severity */}
-                    <Card className="bg-content2/50 border border-default-100 shadow-sm px-0 py-0" shadow="sm">
+                    <Card className="bg-[#27272a] border border-[#3f3f46] shadow-sm px-0 py-0" shadow="sm">
                         <CardBody className="p-0">
                             <Accordion
-                                key={`severity-${isLargeScreen ? 'expanded' : 'collapsed'}`}
+                                key={isInDrawer ? 'drawer-severity' : `severity-${isLargeScreen ? 'expanded' : 'collapsed'}`}
                                 isCompact
                                 showDivider={false}
-                                defaultExpandedKeys={isLargeScreen ? ["severity"] : []}
+                                defaultExpandedKeys={shouldExpandAccordions ? ["severity"] : []}
                             >
                                 <AccordionItem
                                     key="severity"
@@ -120,22 +128,22 @@ export const IncidentFilters = () => {
 
                     {/* Status Filter */}
                     <AccordionRadioFilter
-                        key={`status-${isLargeScreen ? 'expanded' : 'collapsed'}`}
+                        key={isInDrawer ? 'drawer-status' : `status-${isLargeScreen ? 'expanded' : 'collapsed'}`}
                         title="Status"
                         value={filters.status}
                         options={STATUSES}
                         onChange={(val) => updateURL({ status: val })}
-                        defaultExpandedKeys={isLargeScreen ? ["status"] : []}
+                        defaultExpandedKeys={shouldExpandAccordions ? ["status"] : []}
                     />
 
                     {/* Category Filter */}
                     <AccordionRadioFilter
-                        key={`category-${isLargeScreen ? 'expanded' : 'collapsed'}`}
+                        key={isInDrawer ? 'drawer-category' : `category-${isLargeScreen ? 'expanded' : 'collapsed'}`}
                         title="Category"
                         value={filters.category}
                         options={CATEGORIES}
                         onChange={(val) => updateURL({ category: val })}
-                        defaultExpandedKeys={isLargeScreen ? ["category"] : []}
+                        defaultExpandedKeys={shouldExpandAccordions ? ["category"] : []}
                         wrapperClassName={isLargeScreen ? undefined : "grid grid-cols-2 gap-2"}
                     />
                 </div>

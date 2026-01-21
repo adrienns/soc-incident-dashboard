@@ -24,7 +24,7 @@ export const AccordionRadioFilter = ({
     wrapperClassName,
 }: AccordionRadioFilterProps & { wrapperClassName?: string }) => {
     return (
-        <Card className="bg-content2/50 border border-default-100 shadow-sm px-0 py-0" shadow="sm">
+        <Card className="bg-[#27272a] border border-[#3f3f46] shadow-sm px-0 py-0" shadow="sm">
             <CardBody className="p-0">
                 <Accordion isCompact showDivider={false} defaultExpandedKeys={defaultExpandedKeys ?? [title.toLowerCase()]}>
                     <AccordionItem

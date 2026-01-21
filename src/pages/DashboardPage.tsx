@@ -21,6 +21,7 @@ import {
 import { logout } from "../features/auth/authSlice";
 import { websocketManager } from "../services/websocket";
 import { useURLSync } from "../hooks/useURLSync";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 import { IncidentFilters } from "../features/incidents/IncidentFilters";
 import { SummaryCard } from "../components/ui/SummaryCard";
 import { IncidentsTable } from "../features/incidents/IncidentsTable";
@@ -29,6 +30,7 @@ import { DashboardHeader } from "../components/layout/DashboardHeader";
 import { getSeverityColor, getStatusColor } from "../utils/severity";
 import { CriticalIncidentModal } from "../components/feedback/CriticalIncidentModal";
 import { ErrorState } from "../components/feedback/ErrorState";
+import { FilterDrawer } from "../components/ui/FilterDrawer";
 
 export default function DashboardPage() {
     const dispatch = useAppDispatch();
@@ -40,6 +42,10 @@ export default function DashboardPage() {
     const token = useAppSelector((state) => state.auth.token);
 
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const { isOpen: isFilterDrawerOpen, onOpen: onFilterDrawerOpen, onClose: onFilterDrawerClose } = useDisclosure();
+
+    // Detect mobile screens
+    const isMobile = useMediaQuery('(max-width: 767px)');
 
     // Initialize URL sync (watches URL and dispatches to Redux)
     const { updateURL } = useURLSync();
@@ -48,6 +54,14 @@ export default function DashboardPage() {
     const filteredIncidents = useAppSelector(selectFilteredIncidents);
     const filters = useAppSelector(selectFilters);
     const totalPages = Math.ceil(filteredIncidents.length / filters.rowsPerPage);
+
+    // Calculate active filter count for badge
+    const activeFilterCount = [
+        filters.severities.length > 0,
+        filters.status !== null,
+        filters.category !== null,
+        filters.search !== null,
+    ].filter(Boolean).length;
 
     // Responsive Logic
     const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -155,9 +169,9 @@ export default function DashboardPage() {
             />
 
             {/* Main Content Area */}
-            <div className="flex flex-col p-2 md:p-6 gap-4 md:gap-6 h-[calc(100vh-80px)] overflow-hidden">
+            <div className="flex flex-col p-3 md:p-6 gap-3 md:gap-6 h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] overflow-hidden">
                 {/* Summary Row */}
-                <div className="flex flex-nowrap md:flex-wrap gap-4 flex-shrink-0 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+                <div className="flex flex-nowrap md:flex-wrap gap-2 md:gap-4 flex-shrink-0 overflow-x-auto scrollbar-hide">
                     <SummaryCard title="CRITICAL" count={summaryCounts.CRITICAL} color={getSeverityColor('CRITICAL')} />
                     <SummaryCard title="HIGH" count={summaryCounts.HIGH} color={getSeverityColor('HIGH')} />
                     <SummaryCard title="MEDIUM" count={summaryCounts.MEDIUM} color={getSeverityColor('MEDIUM')} />
@@ -166,8 +180,8 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex flex-col min-[1425px]:flex-row flex-1 gap-4 md:gap-6 overflow-hidden">
-                    {/* Filters Card */}
-                    <Card className="w-full h-auto max-h-[35vh] min-[1425px]:max-h-full min-[1425px]:w-80 min-[1425px]:h-full bg-content1 dark:bg-content1 flex-shrink-0">
+                    {/* Filters Card - Hidden on mobile (< 768px) */}
+                    <Card className="hidden md:flex w-full h-auto max-h-[35vh] min-[1425px]:max-h-full min-[1425px]:w-80 min-[1425px]:h-full bg-content1 dark:bg-content1 flex-shrink-0">
                         <CardBody className="p-0 overflow-y-auto">
                             <IncidentFilters />
                         </CardBody>
@@ -249,6 +263,30 @@ export default function DashboardPage() {
                 isOpen={isOpen}
                 incident={lastCriticalIncident}
                 onClose={handleCloseAlert}
+            />
+
+            {/* Mobile Filter Button - Only visible on mobile (< 768px) */}
+            {isMobile && (
+                <button
+                    onClick={onFilterDrawerOpen}
+                    className="md:hidden fixed bottom-6 right-6 z-50 bg-primary text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+                    aria-label="Open filters"
+                >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    {activeFilterCount > 0 && (
+                        <span className="bg-white text-primary rounded-full px-2 py-0.5 text-xs font-bold">
+                            {activeFilterCount}
+                        </span>
+                    )}
+                </button>
+            )}
+
+            {/* Filter Drawer Modal */}
+            <FilterDrawer
+                isOpen={isFilterDrawerOpen}
+                onClose={onFilterDrawerClose}
             />
         </div >
     );

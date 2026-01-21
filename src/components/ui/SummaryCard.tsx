@@ -11,10 +11,10 @@ export const SummaryCard = ({ title, count, color }: SummaryCardProps) => {
     const colorClass = color === 'default' ? 'default-500' : color;
 
     return (
-        <Card classNames={{ base: `border border-${colorClass} shadow-sm` }} className="bg-content1 dark:bg-content2 w-28 cursor-default" style={{ borderRadius: '5px' }}>
-            <CardBody className="flex flex-row items-center justify-center py-2 px-3 gap-2">
-                <span className={`text-xl font-bold text-${colorClass}`}>{count}</span>
-                <span className={`text-xs font-semibold uppercase text-${colorClass}`}>{title}</span>
+        <Card classNames={{ base: `border border-${colorClass} shadow-sm` }} className="bg-content1 dark:bg-content2 w-[110px] md:w-28 cursor-default flex-shrink-0" style={{ borderRadius: '5px' }}>
+            <CardBody className="flex flex-row items-center justify-center py-1.5 md:py-2 px-2 md:px-3 gap-1.5 md:gap-2">
+                <span className={`text-lg md:text-xl font-bold text-${colorClass}`}>{count}</span>
+                <span className={`text-[0.65rem] md:text-xs font-semibold uppercase text-${colorClass}`}>{title}</span>
             </CardBody>
         </Card>
     );
