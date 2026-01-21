@@ -12,8 +12,8 @@ import { useAppDispatch, useAppSelector } from "../hooks";
 import { login } from "../features/auth/authSlice";
 
 export default function LoginPage() {
-    const [username, setUsername] = useState("analyst");
-    const [password, setPassword] = useState("s3cur3");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const { status, error, isAuthenticated } = useAppSelector((state) => state.auth);
