@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+
 import {
     Card,
     CardBody,
@@ -8,10 +8,8 @@ import {
 import { useAppDispatch, useAppSelector } from "../hooks";
 import {
     fetchIncidents,
-    selectIncidentsStatus,
     selectIncidentsError,
     selectConnectionStatus,
-    selectLastCriticalIncident,
     selectSummaryCounts,
     clearCriticalAlert,
     selectFilteredIncidents,
@@ -19,8 +17,11 @@ import {
 
 } from "../features/incidents/incidentsSlice";
 import { logout } from "../features/auth/authSlice";
-import { websocketManager } from "../services/websocket";
+
 import { useURLSync } from "../hooks/useURLSync";
+import { useIncidentsData } from "../hooks/useIncidentsData";
+import { useRealtimeUpdates } from "../hooks/useRealtimeUpdates";
+import { useCriticalAlerts } from "../hooks/useCriticalAlerts";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { IncidentFilters } from "../features/incidents/IncidentFilters";
 import { SummaryCard } from "../components/ui/SummaryCard";
@@ -35,12 +36,9 @@ import { IncidentFiltersTabletView } from "../features/incidents/IncidentFilters
 
 export default function DashboardPage() {
     const dispatch = useAppDispatch();
-    const status = useAppSelector(selectIncidentsStatus);
     const error = useAppSelector(selectIncidentsError);
     const connectionStatus = useAppSelector(selectConnectionStatus);
-    const lastCriticalIncident = useAppSelector(selectLastCriticalIncident);
     const summaryCounts = useAppSelector(selectSummaryCounts);
-    const token = useAppSelector((state) => state.auth.token);
 
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isOpen: isFilterDrawerOpen, onOpen: onFilterDrawerOpen, onClose: onFilterDrawerClose } = useDisclosure();
@@ -67,34 +65,13 @@ export default function DashboardPage() {
     // Responsive Logic
 
 
-    useEffect(() => {
-        if (status === "idle") {
-            dispatch(fetchIncidents());
-        }
-    }, [status, dispatch]);
-
-    // Initialize WebSocket connection
-    useEffect(() => {
-        websocketManager.init(dispatch);
-
-        if (token) {
-            websocketManager.connect(token);
-        }
-
-        return () => {
-            websocketManager.disconnect();
-        };
-    }, [dispatch, token]);
-
-    // Show alert when critical incident arrives
-    useEffect(() => {
-        if (lastCriticalIncident) {
-            onOpen();
-        }
-    }, [lastCriticalIncident, onOpen]);
+    // Data Fetching & Realtime Logic using Custom Hooks
+    useIncidentsData();
+    const { disconnect } = useRealtimeUpdates();
+    const { lastCriticalIncident } = useCriticalAlerts(onOpen);
 
     const handleLogout = () => {
-        websocketManager.disconnect();
+        disconnect();
         dispatch(logout());
     };
 

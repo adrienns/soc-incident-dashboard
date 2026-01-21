@@ -14,6 +14,7 @@ import {
 import { useAppSelector, useAppDispatch } from "../../hooks";
 import { selectPaginatedIncidents, patchIncidentStatus, selectFilters } from "./incidentsSlice";
 import { useURLSync } from "../../hooks/useURLSync";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { getSeverityColor, getStatusColor } from "../../utils/severity";
 import { formatIncidentTimestamp } from "../../utils/date";
 
@@ -24,17 +25,7 @@ export const IncidentsTable = () => {
     const { updateURL } = useURLSync();
 
     // Detect tablet/mobile screen size
-    const [isTabletOrSmaller, setIsTabletOrSmaller] = React.useState(
-        typeof window !== 'undefined' ? window.innerWidth < 1425 : false
-    );
-
-    React.useEffect(() => {
-        const handleResize = () => {
-            setIsTabletOrSmaller(window.innerWidth < 1425);
-        };
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    const isTabletOrSmaller = useMediaQuery('(max-width: 1425px)');
 
     // Define columns with responsive widths
     const columns = [
