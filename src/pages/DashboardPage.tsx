@@ -30,7 +30,8 @@ import { DashboardHeader } from "../components/layout/DashboardHeader";
 import { getSeverityColor, getStatusColor } from "../utils/severity";
 import { CriticalIncidentModal } from "../components/feedback/CriticalIncidentModal";
 import { ErrorState } from "../components/feedback/ErrorState";
-import { FilterDrawer } from "../components/ui/FilterDrawer";
+import { IncidentFiltersMobileView } from "../features/incidents/IncidentFiltersMobileView";
+import { IncidentFiltersTabletView } from "../features/incidents/IncidentFiltersTabletView";
 
 export default function DashboardPage() {
     const dispatch = useAppDispatch();
@@ -45,7 +46,7 @@ export default function DashboardPage() {
     const { isOpen: isFilterDrawerOpen, onOpen: onFilterDrawerOpen, onClose: onFilterDrawerClose } = useDisclosure();
 
     // Detect mobile screens
-    const isMobile = useMediaQuery('(max-width: 767px)');
+    const isMobile = useMediaQuery('(max-width: 926px)');
 
     // Initialize URL sync (watches URL and dispatches to Redux)
     const { updateURL } = useURLSync();
@@ -169,9 +170,9 @@ export default function DashboardPage() {
             />
 
             {/* Main Content Area */}
-            <div className="flex flex-col p-3 md:p-6 gap-3 md:gap-6 h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] overflow-hidden">
+            <div className="flex flex-col p-3 min-[927px]:p-6 gap-3 min-[927px]:gap-6 h-[calc(100vh-64px)] min-[927px]:h-[calc(100vh-80px)] overflow-hidden">
                 {/* Summary Row */}
-                <div className="flex flex-nowrap md:flex-wrap gap-2 md:gap-4 flex-shrink-0 overflow-x-auto scrollbar-hide">
+                <div className="flex flex-nowrap min-[927px]:flex-wrap gap-2 min-[927px]:gap-4 flex-shrink-0 overflow-x-auto scrollbar-hide">
                     <SummaryCard title="CRITICAL" count={summaryCounts.CRITICAL} color={getSeverityColor('CRITICAL')} />
                     <SummaryCard title="HIGH" count={summaryCounts.HIGH} color={getSeverityColor('HIGH')} />
                     <SummaryCard title="MEDIUM" count={summaryCounts.MEDIUM} color={getSeverityColor('MEDIUM')} />
@@ -179,19 +180,24 @@ export default function DashboardPage() {
                     <SummaryCard title="OPEN" count={summaryCounts.OPEN} color={getStatusColor('OPEN')} />
                 </div>
 
-                <div className="flex flex-col min-[1425px]:flex-row flex-1 gap-4 md:gap-6 overflow-hidden">
-                    {/* Filters Card - Hidden on mobile (< 768px) */}
-                    <Card className="hidden md:flex w-full h-auto max-h-[35vh] min-[1425px]:max-h-full min-[1425px]:w-80 min-[1425px]:h-full bg-content1 dark:bg-content1 flex-shrink-0">
+                <div className="flex flex-col min-[1425px]:flex-row flex-1 gap-3 min-[927px]:gap-4 overflow-hidden">
+                    {/* Desktop Sidebar - Only visible on large screens (≥1425px) */}
+                    <Card className="hidden min-[1425px]:flex min-[1425px]:w-80 min-[1425px]:h-full bg-content1 dark:bg-content1 flex-shrink-0">
                         <CardBody className="p-0 overflow-y-auto">
                             <IncidentFilters />
                         </CardBody>
                     </Card>
 
                     {/* Main Content Container (Flex 1) */}
-                    <div className="flex-1 flex flex-col min-h-0">
+                    <div className="flex-1 flex flex-col min-h-0 gap-3 min-[927px]:gap-4">
+                        {/* Tablet Horizontal Filter Toolbar - Only visible 927-1424px */}
+                        <div className="hidden min-[927px]:block min-[1425px]:!hidden">
+                            <IncidentFiltersTabletView />
+                        </div>
 
-                        {/* DESKTOP: Table View (> 768px) */}
-                        <div ref={tableContainerRef} className="hidden md:flex flex-1 flex-col min-h-0">
+
+                        {/* DESKTOP: Table View (> 927px) */}
+                        <div ref={tableContainerRef} className="hidden min-[927px]:flex flex-1 flex-col min-h-0">
                             <div className="flex-1 overflow-auto rounded-t-xl bg-content1 shadow-md">
                                 <IncidentsTable />
                             </div>
@@ -226,8 +232,8 @@ export default function DashboardPage() {
                             </div>
                         </div>
 
-                        {/* MOBILE: Card List View (< 768px) */}
-                        <div className="md:hidden flex-1 flex flex-col min-h-0">
+                        {/* MOBILE: Card List View (< 927px) */}
+                        <div className="min-[927px]:hidden flex-1 flex flex-col min-h-0">
                             <div className="flex-1 overflow-y-auto">
                                 <MobileIncidentsView />
                             </div>
@@ -269,7 +275,7 @@ export default function DashboardPage() {
             {isMobile && (
                 <button
                     onClick={onFilterDrawerOpen}
-                    className="md:hidden fixed bottom-6 right-6 z-50 bg-primary text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+                    className="min-[927px]:hidden fixed bottom-6 right-6 z-50 bg-primary text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
                     aria-label="Open filters"
                 >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -283,8 +289,8 @@ export default function DashboardPage() {
                 </button>
             )}
 
-            {/* Filter Drawer Modal */}
-            <FilterDrawer
+            {/* Mobile Filter View Modal */}
+            <IncidentFiltersMobileView
                 isOpen={isFilterDrawerOpen}
                 onClose={onFilterDrawerClose}
             />

@@ -1,7 +1,7 @@
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from "@heroui/react";
-import { IncidentFilters } from "../../features/incidents/IncidentFilters";
+import { IncidentFilters } from "./IncidentFilters";
 import { useAppSelector } from "../../hooks";
-import { selectFilters } from "../../features/incidents/incidentsSlice";
+import { selectFilters } from "./incidentsSlice";
 import { useURLSync } from "../../hooks/useURLSync";
 
 interface FilterDrawerProps {
@@ -9,7 +9,7 @@ interface FilterDrawerProps {
     onClose: () => void;
 }
 
-export const FilterDrawer = ({ isOpen, onClose }: FilterDrawerProps) => {
+export const IncidentFiltersMobileView = ({ isOpen, onClose }: FilterDrawerProps) => {
     const { clearURL } = useURLSync();
     const filters = useAppSelector(selectFilters);
 
@@ -18,7 +18,7 @@ export const FilterDrawer = ({ isOpen, onClose }: FilterDrawerProps) => {
         filters.severities.length > 0,
         filters.status !== null,
         filters.category !== null,
-        filters.search !== null,
+        !!filters.search,
     ].filter(Boolean).length;
 
     const handleClearAll = () => {

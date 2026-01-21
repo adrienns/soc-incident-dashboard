@@ -125,9 +125,9 @@ export const IncidentsTable = () => {
             selectionMode="single"
             classNames={{
                 wrapper: "bg-[#27272a] rounded-lg p-0", // Uniform light gray body
-                th: "bg-[#18181b] text-default-500 text-tiny uppercase font-bold text-[0.70rem] tracking-wider py-[20px] px-4 first:rounded-tl-lg last:rounded-tr-lg", // Standard px
+                th: "bg-[#18181b] text-default-500 text-tiny uppercase font-bold text-[0.70rem] tracking-wider py-3 min-[1425px]:py-[20px] px-4 first:rounded-tl-lg last:rounded-tr-lg", // Reduced padding on tablet
                 tr: "hover:bg-[#3f3f46]/40 cursor-pointer transition-colors border-b border-[#3f3f46] last:border-none",
-                td: "py-2 px-4 text-default-500", // Standard px
+                td: "py-1 min-[1425px]:py-2 px-4 text-default-500", // Denser on tablet
                 thead: "[&>tr]:first:shadow-none",
                 table: "table-fixed", // Fixed table for desktop consistency
             }}
