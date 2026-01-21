@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
     Card,
     CardBody,
@@ -16,7 +16,7 @@ import {
     clearCriticalAlert,
     selectFilteredIncidents,
     selectFilters,
-    setFilters
+
 } from "../features/incidents/incidentsSlice";
 import { logout } from "../features/auth/authSlice";
 import { websocketManager } from "../services/websocket";
@@ -65,47 +65,7 @@ export default function DashboardPage() {
     ].filter(Boolean).length;
 
     // Responsive Logic
-    const tableContainerRef = useRef<HTMLDivElement>(null);
-    const [paginationPadding, setPaginationPadding] = useState(12);
 
-    useEffect(() => {
-        const updateLayout = () => {
-            if (tableContainerRef.current) {
-                const height = tableContainerRef.current.clientHeight;
-
-                // If table is hidden (mobile) or too small, skip calculation or enforce mobile default
-                if (height < 100) {
-                    return;
-                }
-
-                const headerHeight = 60; // Matches IncidentsTable styling
-                const rowHeight = 40;   // Matches IncidentsTable styling
-
-                const availableForRows = Math.max(0, height - headerHeight);
-                const rows = Math.floor(availableForRows / rowHeight);
-                const remainder = availableForRows % rowHeight;
-
-                // Ensure at least 1 row, max 50
-                const newRows = Math.max(1, Math.min(50, rows));
-
-                if (newRows !== filters.rowsPerPage) {
-                    dispatch(setFilters({ rowsPerPage: newRows }));
-                }
-
-                // Apply remainder to pagination padding (base 12px + remainder)
-                setPaginationPadding(12 + remainder);
-            }
-        };
-
-        // Run initially and on resize
-        updateLayout();
-        const observer = new ResizeObserver(() => {
-            requestAnimationFrame(updateLayout);
-        });
-
-        if (tableContainerRef.current) observer.observe(tableContainerRef.current);
-        return () => observer.disconnect();
-    }, [dispatch, filters.rowsPerPage]);
 
     useEffect(() => {
         if (status === "idle") {
@@ -197,19 +157,13 @@ export default function DashboardPage() {
 
 
                         {/* DESKTOP: Table View (> 927px) */}
-                        <div ref={tableContainerRef} className="hidden min-[927px]:flex flex-1 flex-col min-h-0">
+                        <div className="hidden min-[927px]:flex flex-1 flex-col min-h-0">
                             <div className="flex-1 overflow-auto rounded-t-xl bg-content1 shadow-md">
                                 <IncidentsTable />
                             </div>
                             {/* Desktop Pagination with dynamic padding */}
                             <div
-                                className="bg-content1 rounded-b-xl flex justify-center shadow-md transition-all duration-200"
-                                style={{
-                                    paddingTop: `${paginationPadding}px`,
-                                    paddingBottom: '12px',
-                                    paddingLeft: '12px',
-                                    paddingRight: '12px'
-                                }}
+                                className="bg-content1 rounded-b-xl flex justify-center shadow-md p-3"
                             >
                                 {totalPages > 1 && (
                                     <Pagination
