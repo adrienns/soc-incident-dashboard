@@ -2,6 +2,7 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import { useAppSelector } from "./hooks";
+import { useTokenExpiration } from "./hooks/useTokenExpiration";
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
@@ -12,6 +13,9 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
 };
 
 function App() {
+  // Monitor token expiration and auto-logout
+  useTokenExpiration();
+
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
