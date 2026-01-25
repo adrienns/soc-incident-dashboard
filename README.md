@@ -38,7 +38,7 @@ For incidents, Redux Toolkit's `createEntityAdapter` is used to normalize the da
 
 ### Why These Choices?
 
-**Memoized selectors**: `createSelector` is used for all filtering and sorting. This means if you change the search filter, only the search logic runs - not the severity filter, not the sorting, nothing else. It only recalculates what actually changed. This keeps the UI snappy even with lots of incidents.
+- **Memoized selectors**: `createSelector` is used for incident filtering. This efficiently caches the result, ensuring the expensive filtering logic ONLY runs when the incidents data or filter criteria actually change. This prevents unnecessary re-calculations during unrelated state updates.
 
 **Optimistic updates**: When you click "Resolve" on an incident, the UI updates immediately. Behind the scenes, the API call happens, and if it fails, the change gets rolled back. Users don't have to wait for the server to respond to see their action reflected.
 
