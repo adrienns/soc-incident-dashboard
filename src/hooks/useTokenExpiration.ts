@@ -26,15 +26,9 @@ export const useTokenExpiration = () => {
             return;
         }
 
-        // Set timer to logout when token expires
-        const timeoutId = setTimeout(() => {
-            console.warn('Token expired, auto-logout triggered');
-            dispatch(logout());
-        }, expirationTime);
-
-        // Cleanup timer on unmount or when token changes
-        return () => {
-            clearTimeout(timeoutId);
-        };
+        // Monitor for expiration but let client.ts logic handle the actual refresh/logout cycle
+        if (expirationTime <= 0) {
+            console.warn('Token technically expired. Next API call will trigger refresh.');
+        }
     }, [token, isAuthenticated, dispatch]);
 };

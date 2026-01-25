@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { isTokenExpired } from '../utils/jwtUtils';
 
 // Base URL is empty to use the Vite proxy (avoids CORS)
 const BASE_URL = '';
@@ -20,12 +19,6 @@ client.interceptors.request.use(
 
         // Validate token before sending request
         if (token) {
-            if (isTokenExpired(token)) {
-                // Token is expired - remove it and reject the request
-                localStorage.removeItem('token');
-                console.warn('Attempted to use expired token, cleared from storage');
-                return Promise.reject(new Error('Authentication token expired'));
-            }
             config.headers.Authorization = `Bearer ${token}`;
         }
 
